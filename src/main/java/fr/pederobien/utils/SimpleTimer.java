@@ -55,12 +55,16 @@ public class SimpleTimer extends Timer {
 	 * @param runnable The code to execute.
 	 * @param delay    delay in milliseconds before task is to be executed.
 	 * 
+	 * @return The created {@link TimerTask}.
+	 * 
 	 * @throws IllegalArgumentException if <tt>delay</tt> is negative, or <tt>delay + System.currentTimeMillis()</tt> is negative.
 	 * @throws IllegalStateException    if task was already scheduled or cancelled, timer was cancelled, or timer thread terminated.
 	 * @throws NullPointerException     if {@code task} is null
 	 */
-	public void schedule(Runnable runnable, long delay) {
+	public TimerTask schedule(Runnable runnable, long delay) {
+		TimerTask task = createTask(runnable);
 		super.schedule(createTask(runnable), delay);
+		return task;
 	}
 
 	/**
@@ -70,12 +74,16 @@ public class SimpleTimer extends Timer {
 	 * @param runnable The code to execute.
 	 * @param time     time at which task is to be executed.
 	 * 
+	 * @return The created {@link TimerTask}.
+	 * 
 	 * @throws IllegalArgumentException if <tt>time.getTime()</tt> is negative.
 	 * @throws IllegalStateException    if task was already scheduled or cancelled, timer was cancelled, or timer thread terminated.
 	 * @throws NullPointerException     if {@code task} or {@code time} is null
 	 */
-	public void schedule(Runnable runnable, Date time) {
-		super.schedule(createTask(runnable), time);
+	public TimerTask schedule(Runnable runnable, Date time) {
+		TimerTask task = createTask(runnable);
+		super.schedule(task, time);
+		return task;
 	}
 
 	/**
@@ -98,13 +106,17 @@ public class SimpleTimer extends Timer {
 	 * @param delay    delay in milliseconds before task is to be executed.
 	 * @param period   time in milliseconds between successive task executions.
 	 * 
+	 * @return The created {@link TimerTask}.
+	 * 
 	 * @throws IllegalArgumentException if {@code delay < 0}, or {@code delay + System.currentTimeMillis() < 0}, or
 	 *                                  {@code period <= 0}
 	 * @throws IllegalStateException    if task was already scheduled or cancelled, timer was cancelled, or timer thread terminated.
 	 * @throws NullPointerException     if {@code task} is null
 	 */
-	public void schedule(Runnable runnable, long delay, long period) {
-		super.schedule(createTask(runnable), delay, period);
+	public TimerTask schedule(Runnable runnable, long delay, long period) {
+		TimerTask task = createTask(runnable);
+		super.schedule(task, delay, period);
+		return task;
 	}
 
 	/**
@@ -128,12 +140,16 @@ public class SimpleTimer extends Timer {
 	 * @param firstTime First time at which task is to be executed.
 	 * @param period    time in milliseconds between successive task executions.
 	 * 
+	 * @return The created {@link TimerTask}.
+	 * 
 	 * @throws IllegalArgumentException if {@code firstTime.getTime() < 0}, or {@code period <= 0}
 	 * @throws IllegalStateException    if task was already scheduled or cancelled, timer was cancelled, or timer thread terminated.
 	 * @throws NullPointerException     if {@code task} or {@code firstTime} is null
 	 */
-	public void schedule(Runnable runnable, Date firstTime, long period) {
-		super.schedule(createTask(runnable), firstTime, period);
+	public TimerTask schedule(Runnable runnable, Date firstTime, long period) {
+		TimerTask task = createTask(runnable);
+		super.schedule(task, firstTime, period);
+		return task;
 	}
 
 	/**
@@ -157,13 +173,17 @@ public class SimpleTimer extends Timer {
 	 * @param delay    delay in milliseconds before task is to be executed.
 	 * @param period   time in milliseconds between successive task executions.
 	 * 
+	 * @return The created {@link TimerTask}.
+	 * 
 	 * @throws IllegalArgumentException if {@code delay < 0}, or {@code delay + System.currentTimeMillis() < 0}, or
 	 *                                  {@code period <= 0}
 	 * @throws IllegalStateException    if task was already scheduled or cancelled, timer was cancelled, or timer thread terminated.
 	 * @throws NullPointerException     if {@code task} is null
 	 */
-	public void scheduleAtFixedRate(Runnable runnable, long delay, long period) {
-		super.scheduleAtFixedRate(createTask(runnable), delay, period);
+	public TimerTask scheduleAtFixedRate(Runnable runnable, long delay, long period) {
+		TimerTask task = createTask(runnable);
+		super.scheduleAtFixedRate(task, delay, period);
+		return task;
 	}
 
 	/**
@@ -187,12 +207,17 @@ public class SimpleTimer extends Timer {
 	 * @param runnable  The code to execute.
 	 * @param firstTime First time at which task is to be executed.
 	 * @param period    time in milliseconds between successive task executions.
+	 * 
+	 * @return The created {@link TimerTask}.
+	 * 
 	 * @throws IllegalArgumentException if {@code firstTime.getTime() < 0} or {@code period <= 0}
 	 * @throws IllegalStateException    if task was already scheduled or cancelled, timer was cancelled, or timer thread terminated.
 	 * @throws NullPointerException     if {@code task} or {@code firstTime} is null
 	 */
-	public void scheduleAtFixedRate(Runnable runnable, Date firstTime, long period) {
-		super.scheduleAtFixedRate(createTask(runnable), firstTime, period);
+	public TimerTask scheduleAtFixedRate(Runnable runnable, Date firstTime, long period) {
+		TimerTask task = createTask(runnable);
+		super.scheduleAtFixedRate(task, firstTime, period);
+		return task;
 	}
 
 	private TimerTask createTask(Runnable runnable) {
