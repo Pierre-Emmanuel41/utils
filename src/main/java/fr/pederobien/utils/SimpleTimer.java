@@ -7,6 +7,49 @@ import java.util.TimerTask;
 public class SimpleTimer extends Timer {
 
 	/**
+	 * Creates a new timer. The associated thread does <i>not</i> {@linkplain Thread#setDaemon run as a daemon}.
+	 */
+	public SimpleTimer() {
+		super();
+	}
+
+	/**
+	 * Creates a new timer whose associated thread may be specified to {@linkplain Thread#setDaemon run as a daemon}. A daemon thread
+	 * is called for if the timer will be used to schedule repeating "maintenance activities", which must be performed as long as the
+	 * application is running, but should not prolong the lifetime of the application.
+	 *
+	 * @param isDaemon true if the associated thread should run as a daemon.
+	 */
+	public SimpleTimer(boolean isDaemon) {
+		super(isDaemon);
+	}
+
+	/**
+	 * Creates a new timer whose associated thread has the specified name. The associated thread does <i>not</i>
+	 * {@linkplain Thread#setDaemon run as a daemon}.
+	 *
+	 * @param name the name of the associated thread
+	 * @throws NullPointerException if {@code name} is null
+	 * @since 1.5
+	 */
+	public SimpleTimer(String name) {
+		super(name);
+	}
+
+	/**
+	 * Creates a new timer whose associated thread has the specified name, and may be specified to {@linkplain Thread#setDaemon run as
+	 * a daemon}.
+	 *
+	 * @param name     the name of the associated thread
+	 * @param isDaemon true if the associated thread should run as a daemon
+	 * @throws NullPointerException if {@code name} is null
+	 * @since 1.5
+	 */
+	public SimpleTimer(String name, boolean isDaemon) {
+		super(name, isDaemon);
+	}
+
+	/**
 	 * Schedules a task associated to the given runnable for execution after the specified delay.
 	 *
 	 * @param runnable The code to execute.
