@@ -247,6 +247,25 @@ public class ByteWrapper {
 	}
 
 	/**
+	 * Takes n bytes, with n equals length, at the given index and returns the corresponding bytes array. The source array is modified
+	 * such as the returned bytes array is no more contained in this wrapper.
+	 * 
+	 * @param index  The index from which the bytes will be take.
+	 * @param length The number of bytes to take.
+	 * 
+	 * @return A bytes array.
+	 */
+	public byte[] take(int index, int length) {
+		byte[] result = new byte[length];
+		byte[] intermediate = new byte[get().length - length];
+		System.arraycopy(get(), index, result, 0, length);
+		System.arraycopy(get(), 0, intermediate, 0, index);
+		System.arraycopy(get(), index + length, intermediate, index, get().length - (index + length));
+		buffer = intermediate;
+		return result;
+	}
+
+	/**
 	 * Read n bytes, with n equals length, at the given index and returns the corresponding bytes array.
 	 * 
 	 * @param index  The index from which the bytes will be read.
