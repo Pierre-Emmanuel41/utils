@@ -21,6 +21,8 @@ public class BlockingQueueTask<T> {
 	public BlockingQueueTask(String name, Consumer<T> consumer) {
 		this.consumer = consumer;
 
+		queue = new ArrayBlockingQueue<>(10000);
+
 		queueThread = new Thread(() -> internalStart(), name);
 		queueThread.setDaemon(true);
 
@@ -33,7 +35,6 @@ public class BlockingQueueTask<T> {
 		if (isStarted)
 			return;
 
-		queue = new ArrayBlockingQueue<>(10000);
 		queueThread.start();
 		isStarted = true;
 	}
