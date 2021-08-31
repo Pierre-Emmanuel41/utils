@@ -122,8 +122,6 @@ public class EventManager {
 		Map<Class<? extends Event>, List<Handler>> eventHandlersMap = new HashMap<Class<? extends Event>, List<Handler>>();
 
 		List<Method> methods = new ArrayList<Method>();
-		// public methods
-		methods.addAll(Arrays.asList(eventListener.getClass().getMethods()));
 		// private methods
 		methods.addAll(Arrays.asList(eventListener.getClass().getDeclaredMethods()));
 
