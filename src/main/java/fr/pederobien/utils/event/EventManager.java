@@ -3,20 +3,23 @@ package fr.pederobien.utils.event;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import fr.pederobien.utils.ICancellable;
 
 public class EventManager {
-	private static final Map<Class<? extends Event>, Map<EventPriority, List<Handler>>> HANDLERS;
-	private static final Map<String, Map<Class<? extends Event>, List<Handler>>> LISTENERS;
+	private static final Map<Class<? extends Event>, Map<EventPriority, BlockingQueue<Handler>>> HANDLERS;
+	private static final Map<String, Map<Class<? extends Event>, BlockingQueue<Handler>>> LISTENERS;
 
 	static {
-		HANDLERS = new HashMap<Class<? extends Event>, Map<EventPriority, List<Handler>>>();
-		LISTENERS = new HashMap<String, Map<Class<? extends Event>, List<Handler>>>();
+		HANDLERS = new ConcurrentHashMap<Class<? extends Event>, Map<EventPriority, BlockingQueue<Handler>>>();
+		LISTENERS = new ConcurrentHashMap<String, Map<Class<? extends Event>, BlockingQueue<Handler>>>();
 	}
 
 	/**
@@ -26,25 +29,25 @@ public class EventManager {
 	 */
 	public static void registerListener(IEventListener eventListener) {
 		// Separating event listener into event handlers.
-		Map<Class<? extends Event>, List<Handler>> newEventHandlers = createEventHandler(eventListener);
+		Map<Class<? extends Event>, BlockingQueue<Handler>> newEventHandlers = createEventHandler(eventListener);
 		LISTENERS.put(eventListener.getName(), newEventHandlers);
 
 		// Registering event handler for specified event.
-		for (Map.Entry<Class<? extends Event>, List<Handler>> entryEventHandlers : newEventHandlers.entrySet()) {
-			Map<EventPriority, List<Handler>> eventHandlers = HANDLERS.get(entryEventHandlers.getKey());
+		for (Map.Entry<Class<? extends Event>, BlockingQueue<Handler>> entryEventHandlers : newEventHandlers.entrySet()) {
+			Map<EventPriority, BlockingQueue<Handler>> eventHandlers = HANDLERS.get(entryEventHandlers.getKey());
 
 			// Creating a new Map if there is no event handler registered for the event.
 			if (eventHandlers == null) {
-				eventHandlers = new EnumMap<EventPriority, List<Handler>>(EventPriority.class);
+				eventHandlers = new ConcurrentHashMap<EventPriority, BlockingQueue<Handler>>();
 				HANDLERS.put(entryEventHandlers.getKey(), eventHandlers);
 			}
 
 			for (Handler handler : entryEventHandlers.getValue()) {
-				List<Handler> handlers = eventHandlers.get(handler.getPriority());
+				BlockingQueue<Handler> handlers = eventHandlers.get(handler.getPriority());
 
 				// Creating a new list if there is no event list registered for the event priority.
 				if (handlers == null) {
-					handlers = new ArrayList<Handler>();
+					handlers = new ArrayBlockingQueue<Handler>(10000);
 					eventHandlers.put(handler.getPriority(), handlers);
 				}
 				handlers.add(handler);
@@ -58,21 +61,21 @@ public class EventManager {
 	 * @param eventListener The listener that gather event handlers.
 	 */
 	public static void unregisterListener(IEventListener eventListener) {
-		Map<Class<? extends Event>, List<Handler>> eventHandlers = LISTENERS.remove(eventListener.getName());
+		Map<Class<? extends Event>, BlockingQueue<Handler>> eventHandlers = LISTENERS.remove(eventListener.getName());
 
 		// Listener not registered
 		if (eventHandlers == null)
 			return;
 
-		for (Map.Entry<Class<? extends Event>, List<Handler>> entryHandler : eventHandlers.entrySet()) {
-			Map<EventPriority, List<Handler>> handlersMap = HANDLERS.get(entryHandler.getKey());
+		for (Map.Entry<Class<? extends Event>, BlockingQueue<Handler>> entryHandler : eventHandlers.entrySet()) {
+			Map<EventPriority, BlockingQueue<Handler>> handlersMap = HANDLERS.get(entryHandler.getKey());
 
 			// No handlers registered for the given event.
 			if (handlersMap == null)
 				return;
 
 			for (Handler handler : entryHandler.getValue()) {
-				List<Handler> handlers = handlersMap.get(handler.getPriority());
+				BlockingQueue<Handler> handlers = handlersMap.get(handler.getPriority());
 				handlers.remove(handler);
 
 				// Removing the handlers list because it does not contains any handlers.
@@ -88,19 +91,24 @@ public class EventManager {
 	 * @param event The event to fire.
 	 */
 	public static void callEvent(Event event) {
-		Map<EventPriority, List<Handler>> handlersMap = HANDLERS.get(event.getClass());
+		Map<EventPriority, BlockingQueue<Handler>> handlersMap = HANDLERS.get(event.getClass());
 
 		// No handlers registered for the given event.
 		if (handlersMap == null)
 			return;
 
-		for (Map.Entry<EventPriority, List<Handler>> entryHandlers : handlersMap.entrySet()) {
-			for (Handler handler : entryHandlers.getValue())
+		Iterator<Map.Entry<EventPriority, BlockingQueue<Handler>>> handlerIterator = handlersMap.entrySet().iterator();
+		while (handlerIterator.hasNext()) {
+			Map.Entry<EventPriority, BlockingQueue<Handler>> entry = handlerIterator.next();
+			Iterator<Handler> iterator = entry.getValue().iterator();
+			while (iterator.hasNext()) {
+				Handler handler = iterator.next();
 				try {
 					handler.handle(event);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			}
 		}
 	}
 
@@ -118,8 +126,8 @@ public class EventManager {
 		}
 	}
 
-	private static Map<Class<? extends Event>, List<Handler>> createEventHandler(IEventListener eventListener) {
-		Map<Class<? extends Event>, List<Handler>> eventHandlersMap = new HashMap<Class<? extends Event>, List<Handler>>();
+	private static Map<Class<? extends Event>, BlockingQueue<Handler>> createEventHandler(IEventListener eventListener) {
+		Map<Class<? extends Event>, BlockingQueue<Handler>> eventHandlersMap = new HashMap<Class<? extends Event>, BlockingQueue<Handler>>();
 
 		List<Method> methods = new ArrayList<Method>();
 		// private methods
@@ -144,9 +152,9 @@ public class EventManager {
 			// Get or create the list of event handler registered for the event.
 			Class<? extends Event> eventClass = checkClass.asSubclass(Event.class);
 			method.setAccessible(true);
-			List<Handler> eventHandlerList = eventHandlersMap.get(eventClass);
+			BlockingQueue<Handler> eventHandlerList = eventHandlersMap.get(eventClass);
 			if (eventHandlerList == null) {
-				eventHandlerList = new ArrayList<Handler>();
+				eventHandlerList = new ArrayBlockingQueue<Handler>(10000);
 				eventHandlersMap.put(eventClass, eventHandlerList);
 			}
 
