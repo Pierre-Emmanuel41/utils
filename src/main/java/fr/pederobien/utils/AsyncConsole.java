@@ -1,12 +1,15 @@
 package fr.pederobien.utils;
 
+import java.time.LocalTime;
 import java.util.Objects;
 
 public class AsyncConsole {
-	private static final BlockingQueueTask<Object> TASK;
+	private static final BlockingQueueTask<Display> TASK;
+	private static final String NEW_LINE_FORMATTER = "%s\r\n";
+	private static final String TIME_STAMP_FORMATTER = "[%s] %s";
 
 	static {
-		TASK = new BlockingQueueTask<>("AsyncConsole", object -> internalPrint(object));
+		TASK = new BlockingQueueTask<>("AsyncConsole", display -> internalPrint(display));
 		TASK.start();
 	}
 
@@ -19,7 +22,19 @@ public class AsyncConsole {
 	 */
 	public static void print(Object object) {
 		Objects.requireNonNull(object);
-		TASK.add(object);
+		TASK.add(new Display(object, false));
+	}
+
+	/**
+	 * Print the given object in the console of the system and the time at which the message has been registered.
+	 * 
+	 * @param object The object to print.
+	 * 
+	 * @throws NullPointerException If the given object is null.
+	 */
+	public static void printWithTimeStamp(Object object) {
+		Objects.requireNonNull(object);
+		TASK.add(new Display(object, true));
 	}
 
 	/**
@@ -30,8 +45,22 @@ public class AsyncConsole {
 	 * @throws NullPointerException If the given object is null.
 	 */
 	public static void println(Object object) {
-		print(object);
-		print("\r\n");
+		Objects.requireNonNull(object);
+		TASK.add(new Display(String.format(NEW_LINE_FORMATTER, object), false));
+	}
+
+	/**
+	 * Print the given object in the console of the system and the time at which the message has been registered, then print a new
+	 * line.
+	 * 
+	 * @param object    The object to print.
+	 * @param timeStamp True in order to add the time at which the message has been registered.
+	 * 
+	 * @throws NullPointerException If the given object is null.
+	 */
+	public static void printlnWithTimeStamp(Object object) {
+		Objects.requireNonNull(object);
+		TASK.add(new Display(String.format(NEW_LINE_FORMATTER, object), true));
 	}
 
 	/**
@@ -48,19 +77,57 @@ public class AsyncConsole {
 	}
 
 	/**
-	 * Print the result of {@link String#format(String, Object...)} and then print a new line.
+	 * Print the result of {@link String#format(String, Object...)} and the time at which the message has been registered.
 	 * 
 	 * @param format A formatter string.
 	 * @param args   Arguments called according to the formatter.
 	 * 
 	 * @throws NullPointerException If the format is null.
 	 */
-	public static void println(String format, Object... args) {
-		print(format, args);
-		print("\r\n");
+	public static void printWithStamp(String format, Object... args) {
+		Objects.requireNonNull(format);
+		printWithTimeStamp(String.format(format, args));
 	}
 
-	private static void internalPrint(Object object) {
-		System.out.println(object);
+	/**
+	 * Print the result of {@link String#format(String, Object...)} and the time at which the message has been registered, then print
+	 * a new line.
+	 * 
+	 * @param format A formatter string.
+	 * @param args   Arguments called according to the formatter.
+	 * 
+	 * @throws NullPointerException If the format is null.
+	 */
+	public static void printlnWithTimeStamp(String format, Object... args) {
+		printlnWithTimeStamp(String.format(format, args));
+	}
+
+	private static void internalPrint(Display display) {
+		System.out.print(display.isTimeStamp() ? String.format(TIME_STAMP_FORMATTER, display.getTime(), display.getToDisplay()) : display.getToDisplay());
+	}
+
+	private static class Display {
+		private Object toDisplay;
+		private LocalTime time;
+		private boolean timeStamp;
+
+		private Display(Object toDisplay, boolean timeStamp) {
+			this.toDisplay = toDisplay;
+			this.timeStamp = timeStamp;
+			if (timeStamp)
+				time = LocalTime.now();
+		}
+
+		public Object getToDisplay() {
+			return toDisplay;
+		}
+
+		public boolean isTimeStamp() {
+			return timeStamp;
+		}
+
+		public LocalTime getTime() {
+			return time;
+		}
 	}
 }
