@@ -1,7 +1,6 @@
 package fr.pederobien.utils;
 
 import java.time.LocalTime;
-import java.util.Objects;
 
 public class AsyncConsole {
 	private static final BlockingQueueTask<Display> TASK;
@@ -21,7 +20,6 @@ public class AsyncConsole {
 	 * @throws NullPointerException If the given object is null.
 	 */
 	public static void print(Object object) {
-		Objects.requireNonNull(object);
 		TASK.add(new Display(object, false));
 	}
 
@@ -33,7 +31,6 @@ public class AsyncConsole {
 	 * @throws NullPointerException If the given object is null.
 	 */
 	public static void printWithTimeStamp(Object object) {
-		Objects.requireNonNull(object);
 		TASK.add(new Display(object, true));
 	}
 
@@ -45,7 +42,6 @@ public class AsyncConsole {
 	 * @throws NullPointerException If the given object is null.
 	 */
 	public static void println(Object object) {
-		Objects.requireNonNull(object);
 		TASK.add(new Display(String.format(NEW_LINE_FORMATTER, object), false));
 	}
 
@@ -59,7 +55,6 @@ public class AsyncConsole {
 	 * @throws NullPointerException If the given object is null.
 	 */
 	public static void printlnWithTimeStamp(Object object) {
-		Objects.requireNonNull(object);
 		TASK.add(new Display(String.format(NEW_LINE_FORMATTER, object), true));
 	}
 
@@ -72,7 +67,6 @@ public class AsyncConsole {
 	 * @throws NullPointerException If the format is null.
 	 */
 	public static void print(String format, Object... args) {
-		Objects.requireNonNull(format);
 		print(String.format(format, args));
 	}
 
@@ -84,9 +78,20 @@ public class AsyncConsole {
 	 * 
 	 * @throws NullPointerException If the format is null.
 	 */
-	public static void printWithStamp(String format, Object... args) {
-		Objects.requireNonNull(format);
+	public static void printWithTimeStamp(String format, Object... args) {
 		printWithTimeStamp(String.format(format, args));
+	}
+
+	/**
+	 * Print the result of {@link String#format(String, Object...)} and then print a new line.
+	 * 
+	 * @param format A formatter string.
+	 * @param args   Arguments called according to the formatter.
+	 * 
+	 * @throws NullPointerException If the format is null.
+	 */
+	public static void println(String format, Object... args) {
+		println(String.format(format, args));
 	}
 
 	/**
