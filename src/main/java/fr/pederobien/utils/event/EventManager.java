@@ -23,11 +23,15 @@ public class EventManager {
 	}
 
 	/**
-	 * Register the given event listener for event.
+	 * Register the given event listener for events handling. If the listener is already registered then it is not registered a second
+	 * time.
 	 * 
 	 * @param eventListener The listener that gather event handlers.
 	 */
 	public static void registerListener(IEventListener eventListener) {
+		if (LISTENERS.get(eventListener.getName()) != null)
+			return;
+
 		// Separating event listener into event handlers.
 		Map<Class<? extends Event>, BlockingQueue<Handler>> newEventHandlers = createEventHandler(eventListener);
 		LISTENERS.put(eventListener.getName(), newEventHandlers);
@@ -86,30 +90,14 @@ public class EventManager {
 	}
 
 	/**
-	 * Fire the given event and dispatch it among the event handlers.
+	 * Fire an {@link EventCallEvent} first, then fire the given event and dispatch it among the event handlers. It is recommended
+	 * that each event overrides the toString method in order to display the value of each parameter.
 	 * 
 	 * @param event The event to fire.
 	 */
 	public static void callEvent(Event event) {
-		Map<EventPriority, BlockingQueue<Handler>> handlersMap = HANDLERS.get(event.getClass());
-
-		// No handlers registered for the given event.
-		if (handlersMap == null)
-			return;
-
-		Iterator<Map.Entry<EventPriority, BlockingQueue<Handler>>> handlerIterator = handlersMap.entrySet().iterator();
-		while (handlerIterator.hasNext()) {
-			Map.Entry<EventPriority, BlockingQueue<Handler>> entry = handlerIterator.next();
-			Iterator<Handler> iterator = entry.getValue().iterator();
-			while (iterator.hasNext()) {
-				Handler handler = iterator.next();
-				try {
-					handler.handle(event);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		doCall(new EventCalledEvent(event));
+		doCall(event);
 	}
 
 	/**
@@ -167,5 +155,27 @@ public class EventManager {
 			eventHandlerList.add(new Handler(eventListener, eventHandler, method));
 		}
 		return eventHandlersMap;
+	}
+
+	private static void doCall(Event event) {
+		Map<EventPriority, BlockingQueue<Handler>> handlersMap = HANDLERS.get(event.getClass());
+
+		// No handlers registered for the given event.
+		if (handlersMap == null)
+			return;
+
+		Iterator<Map.Entry<EventPriority, BlockingQueue<Handler>>> handlerIterator = handlersMap.entrySet().iterator();
+		while (handlerIterator.hasNext()) {
+			Map.Entry<EventPriority, BlockingQueue<Handler>> entry = handlerIterator.next();
+			Iterator<Handler> iterator = entry.getValue().iterator();
+			while (iterator.hasNext()) {
+				Handler handler = iterator.next();
+				try {
+					handler.handle(event);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }
