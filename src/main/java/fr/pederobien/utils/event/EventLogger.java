@@ -70,6 +70,7 @@ public class EventLogger implements IEventListener {
 
 	@EventHandler
 	private void onLog(EventCalledEvent event) {
+		events.add(event);
 		if (ignore.contains(event.getClass()) || isSuperClassForbidden(event))
 			return;
 		AsyncConsole.printlnWithTimeStamp(event.getEvent());
