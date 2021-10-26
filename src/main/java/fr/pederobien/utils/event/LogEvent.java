@@ -13,6 +13,6 @@ public class LogEvent extends Event {
 	public String toString() {
 		StringJoiner joiner = new StringJoiner(",", "{", "}");
 		joiner.add("message=" + message);
-		return "LogEvent_" + joiner.toString();
+		return String.format("%s_%s", getName(), joiner);
 	}
 }
