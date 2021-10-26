@@ -11,4 +11,9 @@ public abstract class Event {
 	public String getName() {
 		return getClass().getSimpleName();
 	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

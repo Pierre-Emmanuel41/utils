@@ -8,11 +8,11 @@ import java.util.Set;
 import fr.pederobien.utils.AsyncConsole;
 
 public class EventLogger implements IEventListener {
-	private Set<Class<? super Event>> ignore;
+	private Set<Class<? extends Event>> ignore;
 	private List<? super Event> events;
 
 	private EventLogger() {
-		ignore = new HashSet<Class<? super Event>>();
+		ignore = new HashSet<Class<? extends Event>>();
 		events = new ArrayList<Event>();
 	}
 
@@ -32,7 +32,7 @@ public class EventLogger implements IEventListener {
 	 * 
 	 * @param clazz The class of event to not display.
 	 */
-	public void ignore(Class<? super Event> clazz) {
+	public <T extends Event> void ignore(Class<T> clazz) {
 		if (ignore.contains(clazz))
 			return;
 		ignore.add(clazz);
