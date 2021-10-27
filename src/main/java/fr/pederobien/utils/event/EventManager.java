@@ -23,15 +23,12 @@ public class EventManager {
 	}
 
 	/**
-	 * Register the given event listener for events handling. If the listener is already registered then it is not registered a second
-	 * time.
+	 * Register the given event listener for events handling. There is no mechanism to check if the listener is already registered or
+	 * not.
 	 * 
 	 * @param eventListener The listener that gather event handlers.
 	 */
 	public static void registerListener(IEventListener eventListener) {
-		if (LISTENERS.get(eventListener.getName()) != null)
-			return;
-
 		// Separating event listener into event handlers.
 		Map<Class<? extends Event>, BlockingQueue<Handler>> newEventHandlers = createEventHandler(eventListener);
 		LISTENERS.put(eventListener.getName(), newEventHandlers);
