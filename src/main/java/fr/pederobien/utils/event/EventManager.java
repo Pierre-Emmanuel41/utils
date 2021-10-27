@@ -98,8 +98,8 @@ public class EventManager {
 	}
 
 	/**
-	 * Fire the event among the event handlers and run the given runnable if and only if the event implements the {@link ICancellable}
-	 * interface and the event is not cancelled.
+	 * Fire the event among the event handlers and run the given runnable if the given event class does not implements
+	 * {@link ICancellable} interface of if the event has not been cancelled.
 	 * 
 	 * @param event    The event to fire.
 	 * @param runnable The code to run if the event is not cancelled.
@@ -108,6 +108,22 @@ public class EventManager {
 		callEvent(event);
 		if (!(event instanceof ICancellable) || !((ICancellable) event).isCancelled()) {
 			runnable.run();
+		}
+	}
+
+	/**
+	 * First fire the preEvent among the event, then run the given runnable if the given event class does not implements
+	 * {@link ICancellable} interface of if the event has not been cancelled and finally fire the postEvent.
+	 * 
+	 * @param preEvent The event to thrown first.
+	 * @param runnable The code to execute if the event has not been cancelled.
+	 * @param posEvent The event to thrown at the end.
+	 */
+	public static void callEvent(Event preEvent, Runnable runnable, Event posEvent) {
+		callEvent(preEvent);
+		if (!(preEvent instanceof ICancellable) || !((ICancellable) preEvent).isCancelled()) {
+			runnable.run();
+			callEvent(posEvent);
 		}
 	}
 
