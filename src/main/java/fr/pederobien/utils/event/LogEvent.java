@@ -5,8 +5,8 @@ import java.util.StringJoiner;
 public class LogEvent extends Event {
 	private String message;
 
-	public LogEvent(String message) {
-		this.message = message;
+	public LogEvent(String format, Object... args) {
+		this.message = String.format(format, args);
 	}
 
 	@Override
