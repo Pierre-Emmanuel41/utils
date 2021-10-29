@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.pederobien.utils.BlockingQueueTask;
 
@@ -13,6 +14,7 @@ public class EventLogger implements IEventListener {
 	private BlockingQueueTask<EventCalledEvent> task;
 	private Set<Class<? extends Event>> ignore;
 	private List<EventCalledEvent> events;
+	private AtomicBoolean isRegistered;
 	private String formatter;
 
 	private EventLogger() {
@@ -20,6 +22,7 @@ public class EventLogger implements IEventListener {
 		task.start();
 		ignore = new HashSet<Class<? extends Event>>();
 		events = new ArrayList<EventCalledEvent>();
+		isRegistered = new AtomicBoolean(false);
 		formatter = NEW_LINE;
 	}
 
@@ -59,21 +62,23 @@ public class EventLogger implements IEventListener {
 	 * Register this listener in the EventManager in order to display the registered event to be called.
 	 */
 	public void register() {
-		EventManager.registerListener(this);
+		if (isRegistered.compareAndSet(false, true))
+			EventManager.registerListener(this);
 	}
 
 	/**
 	 * Unregister this listener from the EventManager in order to not be notified when an event is thrown.
 	 */
 	public void unregister() {
-		EventManager.unregisterListener(this);
+		if (isRegistered.compareAndSet(true, false))
+			EventManager.unregisterListener(this);
 	}
 
 	/**
 	 * @return The list that contains all events thrown while this logger was registered.
 	 */
 	public List<EventCalledEvent> getEvents() {
-		return events;
+		return new ArrayList<EventCalledEvent>(events);
 	}
 
 	/**
