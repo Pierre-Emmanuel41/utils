@@ -1,6 +1,7 @@
 package fr.pederobien.utils.event;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,10 +19,8 @@ public class EventLogger implements IEventListener {
 	private String formatter;
 
 	private EventLogger() {
-		task = new BlockingQueueTask<>("EventLogger", event -> display(event));
-		task.start();
 		ignore = new HashSet<Class<? extends Event>>();
-		events = new ArrayList<EventCalledEvent>();
+		events = Collections.synchronizedList(new ArrayList<>());
 		isRegistered = new AtomicBoolean(false);
 		formatter = NEW_LINE;
 	}
@@ -63,15 +62,22 @@ public class EventLogger implements IEventListener {
 	 */
 	public void register() {
 		if (isRegistered.compareAndSet(false, true))
-			EventManager.registerListener(this);
+			return;
+
+		EventManager.registerListener(this);
+		task = new BlockingQueueTask<>("EventLogger", event -> display(event));
+		task.start();
 	}
 
 	/**
 	 * Unregister this listener from the EventManager in order to not be notified when an event is thrown.
 	 */
 	public void unregister() {
-		if (isRegistered.compareAndSet(true, false))
-			EventManager.unregisterListener(this);
+		if (!isRegistered.compareAndSet(true, false))
+			return;
+
+		EventManager.unregisterListener(this);
+		task.dispose();
 	}
 
 	/**
