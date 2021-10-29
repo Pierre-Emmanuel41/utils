@@ -5,15 +5,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import fr.pederobien.utils.AsyncConsole;
+import fr.pederobien.utils.BlockingQueueTask;
 
 public class EventLogger implements IEventListener {
+	private static final String FORMATTER = "[%s] %s";
+	private static final String NEW_LINE = "[%s] %s\r\n";
+	private BlockingQueueTask<EventCalledEvent> task;
 	private Set<Class<? extends Event>> ignore;
-	private List<? super Event> events;
+	private List<EventCalledEvent> events;
+	private String formatter;
 
 	private EventLogger() {
+		task = new BlockingQueueTask<>("EventLogger", event -> display(event));
+		task.start();
 		ignore = new HashSet<Class<? extends Event>>();
-		events = new ArrayList<Event>();
+		events = new ArrayList<EventCalledEvent>();
+		formatter = NEW_LINE;
 	}
 
 	/**
@@ -32,10 +39,11 @@ public class EventLogger implements IEventListener {
 	 * 
 	 * @param clazz The class of event to not display.
 	 */
-	public <T extends Event> void ignore(Class<T> clazz) {
+	public <T extends Event> EventLogger ignore(Class<T> clazz) {
 		if (ignore.contains(clazz))
-			return;
+			return this;
 		ignore.add(clazz);
+		return this;
 	}
 
 	/**
@@ -64,16 +72,31 @@ public class EventLogger implements IEventListener {
 	/**
 	 * @return The list that contains all events thrown while this logger was registered.
 	 */
-	public List<? super Event> getEvents() {
+	public List<EventCalledEvent> getEvents() {
 		return events;
+	}
+
+	/**
+	 * Set if a new line should be displayed after displaying an thrown event.
+	 * 
+	 * @param newLine True in order to display a new line after, false otherwise.
+	 */
+	public EventLogger displayNewLine(boolean newLine) {
+		formatter = newLine ? NEW_LINE : FORMATTER;
+		return this;
 	}
 
 	@EventHandler
 	private void onLog(EventCalledEvent event) {
-		events.add(event.getEvent());
+		task.add(event);
+	}
+
+	private void display(EventCalledEvent event) {
+		events.add(event);
 		if (ignore.contains(event.getClass()) || isSuperClassForbidden(event))
 			return;
-		AsyncConsole.printlnWithTimeStamp(event.getEvent());
+
+		System.out.print(String.format(formatter, event.getTime().toLocalTime(), event.getEvent()));
 	}
 
 	/**
