@@ -13,13 +13,13 @@ public class EventLogger implements IEventListener {
 	private static final String FORMATTER = "[%s] %s";
 	private static final String NEW_LINE = "[%s] %s\r\n";
 	private BlockingQueueTask<EventCalledEvent> task;
-	private Set<Class<? extends Event>> ignore;
+	private Set<Class<? extends Event>> ignored;
 	private List<EventCalledEvent> events;
 	private AtomicBoolean isRegistered;
 	private String formatter;
 
 	private EventLogger() {
-		ignore = new HashSet<Class<? extends Event>>();
+		ignored = new HashSet<Class<? extends Event>>();
 		events = Collections.synchronizedList(new ArrayList<>());
 		isRegistered = new AtomicBoolean(false);
 		formatter = NEW_LINE;
@@ -42,9 +42,9 @@ public class EventLogger implements IEventListener {
 	 * @param clazz The class of event to not display.
 	 */
 	public <T extends Event> EventLogger ignore(Class<T> clazz) {
-		if (ignore.contains(clazz))
+		if (ignored.contains(clazz))
 			return this;
-		ignore.add(clazz);
+		ignored.add(clazz);
 		return this;
 	}
 
@@ -54,14 +54,14 @@ public class EventLogger implements IEventListener {
 	 * @param clazz The class to not ignore.
 	 */
 	public void accept(Class<? super Event> clazz) {
-		ignore.remove(clazz);
+		ignored.remove(clazz);
 	}
 
 	/**
 	 * Register this listener in the EventManager in order to display the registered event to be called.
 	 */
 	public void register() {
-		if (isRegistered.compareAndSet(false, true))
+		if (!isRegistered.compareAndSet(false, true))
 			return;
 
 		EventManager.registerListener(this);
@@ -104,7 +104,7 @@ public class EventLogger implements IEventListener {
 
 	private void display(EventCalledEvent event) {
 		events.add(event);
-		if (ignore.contains(event.getClass()) || isSuperClassForbidden(event))
+		if (ignored.contains(event.getClass()) || isSuperClassIgnored(event))
 			return;
 
 		System.out.print(String.format(formatter, event.getTime().toLocalTime(), event.getEvent()));
@@ -116,9 +116,9 @@ public class EventLogger implements IEventListener {
 	 * @param event The event that contains the called event.
 	 * @return True if a super class is forbidden, false otherwise.
 	 */
-	private boolean isSuperClassForbidden(EventCalledEvent event) {
+	private boolean isSuperClassIgnored(EventCalledEvent event) {
 		for (Class<?> clazz = event.getEvent().getClass(); Event.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass())
-			if (ignore.contains(clazz))
+			if (ignored.contains(clazz))
 				return true;
 		return false;
 	}
