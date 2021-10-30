@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import fr.pederobien.utils.ICancellable;
 
@@ -106,25 +108,69 @@ public class EventManager {
 	 */
 	public static void callEvent(Event event, Runnable runnable) {
 		callEvent(event);
-		if (!(event instanceof ICancellable) || !((ICancellable) event).isCancelled()) {
+		if (!(event instanceof ICancellable) || !((ICancellable) event).isCancelled())
 			runnable.run();
+	}
+
+	/**
+	 * First fire the preEvent among the event, then fire the postEvent if the given <code>preEvent</code> class does not implements
+	 * {@link ICancellable} interface of if the event has not been cancelled.
+	 * 
+	 * @param preEvent The event to thrown first.
+	 * @param posEvent The event to thrown at the end.
+	 */
+	public static void callEvent(Event preEvent, Event posEvent) {
+		callEvent(preEvent, () -> callEvent(posEvent));
+	}
+
+	/**
+	 * First fire the preEvent among the event, then run the given exe if the given event class does not implements
+	 * {@link ICancellable} interface of if the event has not been cancelled and finally fire the postEvent.
+	 * 
+	 * @param preEvent The event to thrown first.
+	 * @param exe      The code to execute if the event has not been cancelled.
+	 * @param posEvent The event to thrown at the end.
+	 */
+	public static void callEvent(Event preEvent, Runnable exe, Event posEvent) {
+		callEvent(preEvent);
+		if (!(preEvent instanceof ICancellable) || !((ICancellable) preEvent).isCancelled()) {
+			exe.run();
+			callEvent(posEvent);
 		}
 	}
 
 	/**
-	 * First fire the preEvent among the event, then run the given runnable if the given event class does not implements
+	 * First fire the preEvent among the event, then run the given exe if the given event class does not implements
 	 * {@link ICancellable} interface of if the event has not been cancelled and finally fire the postEvent.
 	 * 
 	 * @param preEvent The event to thrown first.
-	 * @param runnable The code to execute if the event has not been cancelled.
+	 * @param exe      The code to execute if the event has not been cancelled and specify if the post event should be thrown or not.
 	 * @param posEvent The event to thrown at the end.
 	 */
-	public static void callEvent(Event preEvent, Runnable runnable, Event posEvent) {
+	public static void callEvent(Event preEvent, Supplier<Boolean> exe, Event posEvent) {
 		callEvent(preEvent);
 		if (!(preEvent instanceof ICancellable) || !((ICancellable) preEvent).isCancelled()) {
-			runnable.run();
-			callEvent(posEvent);
+			if (exe.get())
+				callEvent(posEvent);
 		}
+	}
+
+	/**
+	 * First fire the preEvent among the event, then run the given exe if the given event class does not implements
+	 * {@link ICancellable} interface of if the event has not been cancelled and finally fire the postEvent.
+	 * 
+	 * @param preEvent The event to thrown first.
+	 * @param exe      The code to execute if the event has not been cancelled and specify the type of the created object.
+	 * @param posEvent A function to create the postEvent depending on the created object.
+	 */
+	public static <T> T callEvent(Event preEvent, Supplier<T> exe, Function<T, Event> postEvent) {
+		callEvent(preEvent);
+		if (!(preEvent instanceof ICancellable) || !((ICancellable) preEvent).isCancelled()) {
+			T result = exe.get();
+			callEvent(postEvent.apply(result));
+			return result;
+		}
+		return null;
 	}
 
 	private static Map<Class<? extends Event>, BlockingQueue<Handler>> createEventHandler(IEventListener eventListener) {
