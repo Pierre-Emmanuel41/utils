@@ -49,7 +49,7 @@ public class EventLogger implements IEventListener {
 	}
 
 	/**
-	 * Specifies a class of event that when called are ignored any more.
+	 * Specifies a class of event that when called are not ignored any more.
 	 * 
 	 * @param clazz The class to not ignore.
 	 */
