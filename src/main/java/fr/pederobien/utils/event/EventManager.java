@@ -35,7 +35,7 @@ public class EventManager {
 	public static void registerListener(IEventListener eventListener) {
 		// Separating event listener into event handlers.
 		Map<Class<? extends Event>, Queue<Handler>> newEventHandlers = createEventHandler(eventListener);
-		LISTENERS.put(eventListener.getName(), newEventHandlers);
+		LISTENERS.put(eventListener.getListenerName(), newEventHandlers);
 
 		// Registering event handler for specified event.
 		for (Map.Entry<Class<? extends Event>, Queue<Handler>> entryEventHandlers : newEventHandlers.entrySet()) {
@@ -64,7 +64,7 @@ public class EventManager {
 	 * @param eventListener The listener that gather event handlers.
 	 */
 	public static void unregisterListener(IEventListener eventListener) {
-		Map<Class<? extends Event>, Queue<Handler>> eventHandlers = LISTENERS.remove(eventListener.getName());
+		Map<Class<? extends Event>, Queue<Handler>> eventHandlers = LISTENERS.remove(eventListener.getListenerName());
 
 		// Listener not registered
 		if (eventHandlers == null)
@@ -188,7 +188,8 @@ public class EventManager {
 
 			final Class<?> checkClass;
 			if (method.getParameterTypes().length != 1 || !Event.class.isAssignableFrom(checkClass = method.getParameterTypes()[0])) {
-				String message = String.format("%s attempt to register an invalid event handler method signature %s", eventListener.getName(), method.toGenericString());
+				String message = String.format("%s attempt to register an invalid event handler method signature %s", eventListener.getListenerName(),
+						method.toGenericString());
 				throw new EventRegistrationException(message);
 			}
 

@@ -8,7 +8,7 @@ public interface IEventListener {
 	/**
 	 * @return The name of this event listener.
 	 */
-	default String getName() {
+	default String getListenerName() {
 		return getClass().getSimpleName();
 	}
 }
