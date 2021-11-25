@@ -35,7 +35,7 @@ public class EventManager {
 	public static void registerListener(IEventListener eventListener) {
 		// Separating event listener into event handlers.
 		Map<Class<? extends Event>, Queue<Handler>> newEventHandlers = createEventHandler(eventListener);
-		LISTENERS.put(eventListener.getListenerName(), newEventHandlers);
+		LISTENERS.put(getListenerName(eventListener), newEventHandlers);
 
 		// Registering event handler for specified event.
 		for (Map.Entry<Class<? extends Event>, Queue<Handler>> entryEventHandlers : newEventHandlers.entrySet()) {
@@ -64,7 +64,7 @@ public class EventManager {
 	 * @param eventListener The listener that gather event handlers.
 	 */
 	public static void unregisterListener(IEventListener eventListener) {
-		Map<Class<? extends Event>, Queue<Handler>> eventHandlers = LISTENERS.remove(eventListener.getListenerName());
+		Map<Class<? extends Event>, Queue<Handler>> eventHandlers = LISTENERS.remove(getListenerName(eventListener));
 
 		// Listener not registered
 		if (eventHandlers == null)
@@ -231,5 +231,16 @@ public class EventManager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Creates a unique listener name for the given listener.
+	 * 
+	 * @param listener The listener used to create a unique name.
+	 * 
+	 * @return The following string : <code>&lt;listenerName&gt;@&lt;hashcode&gt;</code>
+	 */
+	private static String getListenerName(IEventListener listener) {
+		return String.format("%s@%s", listener.getListenerName(), listener.hashCode());
 	}
 }
