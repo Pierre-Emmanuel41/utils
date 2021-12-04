@@ -17,8 +17,6 @@
 	</properties>
 	
 	<build>
-		<finalName>communication</finalName>
-		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
