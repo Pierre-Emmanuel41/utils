@@ -10,19 +10,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import fr.pederobien.utils.BlockingQueueTask;
 
 public class EventLogger implements IEventListener {
-	private static final String FORMATTER = "[%s] %s";
-	private static final String NEW_LINE = "[%s] %s\r\n";
+	private static final String SIMPLE_LINE_FORMAT = "%s";
+	private static final String SIMPLE_TIME_STAMP_LINE_FORMAT = "[%s] %s";
+	private static final String NEW_LINE_FORMAT = "%s\r\n";
+	private static final String NEW_TIME_STAMP_LINE_FORMAT = "[%s] %s\r\n";
 	private BlockingQueueTask<EventCalledEvent> task;
 	private Set<Class<? extends Event>> ignored;
 	private List<EventCalledEvent> events;
 	private AtomicBoolean isRegistered;
-	private String formatter;
+	private boolean newLine, timeStamp;
 
 	private EventLogger() {
 		ignored = new HashSet<Class<? extends Event>>();
 		events = Collections.synchronizedList(new ArrayList<>());
 		isRegistered = new AtomicBoolean(false);
-		formatter = NEW_LINE;
 	}
 
 	/**
@@ -88,12 +89,26 @@ public class EventLogger implements IEventListener {
 	}
 
 	/**
-	 * Set if a new line should be displayed after displaying an thrown event.
+	 * Set if a new line should be displayed after displaying a thrown event.
 	 * 
 	 * @param newLine True in order to display a new line after, false otherwise.
+	 * 
+	 * @return This logger.
 	 */
-	public EventLogger displayNewLine(boolean newLine) {
-		formatter = newLine ? NEW_LINE : FORMATTER;
+	public EventLogger newLine(boolean newLine) {
+		this.newLine = newLine;
+		return this;
+	}
+
+	/**
+	 * Set if a the time stamp should be displayed before a thrown event.
+	 * 
+	 * @param timeStamp True in order to display the time stamp, false otherwise.
+	 * 
+	 * @return This logger.
+	 */
+	public EventLogger timeStamp(boolean timeStamp) {
+		this.timeStamp = timeStamp;
 		return this;
 	}
 
@@ -107,7 +122,17 @@ public class EventLogger implements IEventListener {
 		if (ignored.contains(event.getClass()) || isSuperClassIgnored(event))
 			return;
 
-		System.out.print(String.format(formatter, event.getTime().toLocalTime(), event.getEvent()));
+		if (newLine) {
+			if (timeStamp)
+				System.out.print(String.format(NEW_TIME_STAMP_LINE_FORMAT, event.getTime().toLocalTime(), event.getEvent()));
+			else
+				System.out.print(String.format(NEW_LINE_FORMAT, event.getEvent()));
+		} else {
+			if (timeStamp)
+				System.out.print(String.format(SIMPLE_TIME_STAMP_LINE_FORMAT, event.getTime(), event.getEvent()));
+			else
+				System.out.print(String.format(SIMPLE_LINE_FORMAT, event.getEvent()));
+		}
 	}
 
 	/**
