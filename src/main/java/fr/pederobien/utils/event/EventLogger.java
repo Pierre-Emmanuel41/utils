@@ -7,14 +7,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import fr.pederobien.utils.BlockingQueueTask;
+import fr.pederobien.utils.AsyncConsole;
 
 public class EventLogger implements IEventListener {
-	private static final String SIMPLE_LINE_FORMAT = "%s";
-	private static final String SIMPLE_TIME_STAMP_LINE_FORMAT = "[%s] %s";
-	private static final String NEW_LINE_FORMAT = "%s\r\n";
-	private static final String NEW_TIME_STAMP_LINE_FORMAT = "[%s] %s\r\n";
-	private BlockingQueueTask<EventCalledEvent> task;
 	private Set<Class<? extends Event>> ignored;
 	private List<EventCalledEvent> events;
 	private AtomicBoolean isRegistered;
@@ -66,8 +61,6 @@ public class EventLogger implements IEventListener {
 			return;
 
 		EventManager.registerListener(this);
-		task = new BlockingQueueTask<>("EventLogger", event -> display(event));
-		task.start();
 	}
 
 	/**
@@ -78,7 +71,6 @@ public class EventLogger implements IEventListener {
 			return;
 
 		EventManager.unregisterListener(this);
-		task.dispose();
 	}
 
 	/**
@@ -114,24 +106,20 @@ public class EventLogger implements IEventListener {
 
 	@EventHandler
 	private void onLog(EventCalledEvent event) {
-		task.add(event);
-	}
-
-	private void display(EventCalledEvent event) {
 		events.add(event);
 		if (ignored.contains(event.getClass()) || isSuperClassIgnored(event))
 			return;
 
 		if (newLine) {
 			if (timeStamp)
-				System.out.print(String.format(NEW_TIME_STAMP_LINE_FORMAT, event.getTime().toLocalTime(), event.getEvent()));
+				AsyncConsole.printlnWithTimeStamp(event.getEvent());
 			else
-				System.out.print(String.format(NEW_LINE_FORMAT, event.getEvent()));
+				AsyncConsole.println(event.getEvent());
 		} else {
 			if (timeStamp)
-				System.out.print(String.format(SIMPLE_TIME_STAMP_LINE_FORMAT, event.getTime(), event.getEvent()));
+				AsyncConsole.printWithTimeStamp(event.getEvent());
 			else
-				System.out.print(String.format(SIMPLE_LINE_FORMAT, event.getEvent()));
+				AsyncConsole.print(event.getEvent());
 		}
 	}
 
