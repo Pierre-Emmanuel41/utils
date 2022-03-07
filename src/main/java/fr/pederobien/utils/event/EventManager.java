@@ -91,8 +91,8 @@ public class EventManager {
 	 * @param event The event to fire.
 	 */
 	public static void callEvent(Event event) {
-		doCall(new EventCalledEvent(event));
 		doCall(event);
+		doCall(new EventCalledEvent(event));
 	}
 
 	/**
