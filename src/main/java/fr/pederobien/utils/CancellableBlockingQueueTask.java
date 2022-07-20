@@ -5,10 +5,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public class BlockingQueueTask<T> {
+public class CancellableBlockingQueueTask<T> {
 	private Thread queueThread;
-	private Consumer<T> consumer;
-	private BlockingQueue<T> queue;
+	private Consumer<Cancellable<T>> consumer;
+	private BlockingQueue<Cancellable<T>> queue;
 	private AtomicBoolean disposed;
 	private boolean isStarted;
 
@@ -18,7 +18,7 @@ public class BlockingQueueTask<T> {
 	 * @param name     The thread name.
 	 * @param consumer The code to execute when an element is added to this queue.
 	 */
-	public BlockingQueueTask(String name, Consumer<T> consumer) {
+	public CancellableBlockingQueueTask(String name, Consumer<Cancellable<T>> consumer) {
 		this.consumer = consumer;
 
 		queue = new ArrayBlockingQueue<>(10000);
@@ -46,10 +46,14 @@ public class BlockingQueueTask<T> {
 	 * Appends the given element in the underlying blocking queue in order to perform an action asynchronously.
 	 * 
 	 * @param e The element to in add.
+	 * 
+	 * @return a cancellable that wrap the element to add.
 	 */
-	public void add(T e) {
+	public Cancellable<T> add(T e) {
 		checkIsDisposed();
-		queue.add(e);
+		Cancellable<T> element = new Cancellable<T>(e);
+		queue.add(element);
+		return element;
 	}
 
 	/**
@@ -69,7 +73,11 @@ public class BlockingQueueTask<T> {
 	private void internalStart() {
 		while (!isDisposed()) {
 			try {
-				consumer.accept(queue.take());
+				Cancellable<T> cancellable = queue.take();
+				if (cancellable.isCancelled())
+					continue;
+
+				consumer.accept(cancellable);
 			} catch (InterruptedException e) {
 
 			} catch (Exception e) {
@@ -81,5 +89,38 @@ public class BlockingQueueTask<T> {
 	private void checkIsDisposed() {
 		if (isDisposed())
 			throw new UnsupportedOperationException("Object disposed");
+	}
+
+	public static class Cancellable<T> {
+		private T element;
+		private boolean isCancelled;
+
+		/**
+		 * Creates a cancellable element.
+		 * 
+		 * @param element The underlying element associated to this cancellable element.
+		 */
+		private Cancellable(T element) {
+			this.element = element;
+			this.isCancelled = false;
+		}
+
+		/**
+		 * @return The underlying element of this cancellable element.
+		 */
+		public T get() {
+			return element;
+		}
+
+		/**
+		 * @return True if this element has been cancelled, false otherwise.
+		 */
+		public boolean isCancelled() {
+			return isCancelled;
+		}
+
+		public void setCancelled(boolean isCancelled) {
+			this.isCancelled = isCancelled;
+		}
 	}
 }
