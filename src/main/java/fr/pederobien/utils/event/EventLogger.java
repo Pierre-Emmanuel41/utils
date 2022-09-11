@@ -49,7 +49,7 @@ public class EventLogger implements IEventListener {
 	 * 
 	 * @param clazz The class to not ignore.
 	 */
-	public void accept(Class<? super Event> clazz) {
+	public void accept(Class<? extends Event> clazz) {
 		ignored.remove(clazz);
 	}
 
