@@ -1,34 +1,63 @@
 package fr.pederobien.utils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.StringJoiner;
 
 public class ByteWrapper {
 	private byte[] buffer;
 	private ByteBuffer byteBuffer;
 
-	private ByteWrapper(byte[] buffer) {
+	/**
+	 * Creates a byte wrapper in order to store byte representation of different data.
+	 * 
+	 * @param buffer     The underlying array.
+	 * @param endianness The byte order to use to store data.
+	 */
+	private ByteWrapper(byte[] buffer, ByteOrder endianness) {
 		this.buffer = buffer;
-		byteBuffer = ByteBuffer.wrap(buffer);
+		byteBuffer = ByteBuffer.wrap(buffer).order(endianness);
 	}
 
 	/**
-	 * Create a new wrapper based on the the given byte array.
+	 * Create a new wrapper based on the the given byte array. The default byte order is Big-Endian.
 	 * 
 	 * @param buffer The byte array to wrap.
 	 * 
 	 * @return A byte wrapper.
 	 */
 	public static ByteWrapper wrap(byte[] buffer) {
-		return new ByteWrapper(buffer);
+		return new ByteWrapper(buffer, ByteOrder.BIG_ENDIAN);
+	}
+
+	/**
+	 * Create a new wrapper based on the the given byte array.
+	 * 
+	 * @param buffer     The byte array to wrap.
+	 * @param endianness The byte order to use.
+	 * 
+	 * @return A byte wrapper.
+	 */
+	public static ByteWrapper wrap(byte[] buffer, ByteOrder endianness) {
+		return new ByteWrapper(buffer, endianness);
+	}
+
+	/**
+	 * Creates a new wrapper based on an empty bytes array. The default byte order is Big-Endian.
+	 * 
+	 * @return A byte wrapper.
+	 */
+	public static ByteWrapper create() {
+		return wrap(new byte[0]);
 	}
 
 	/**
 	 * Creates a new wrapper based on an empty bytes array.
 	 * 
 	 * @return A byte wrapper.
+	 * @param endianness The byte order to use.
 	 */
-	public static ByteWrapper create() {
+	public static ByteWrapper create(ByteOrder endianness) {
 		return wrap(new byte[0]);
 	}
 
