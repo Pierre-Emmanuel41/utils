@@ -56,6 +56,17 @@ public class ReadableByteWrapper {
 	}
 
 	/**
+	 * Reads the next n bytes, with n equals length, and increment by n the current position by one.
+	 *
+	 * @param The number of bytes to read.
+	 * 
+	 * @return The byte at the current position.
+	 */
+	public byte[] next(int length) {
+		return next(wrapper -> wrapper.extract(position, length), length);
+	}
+
+	/**
 	 * Reads the next two bytes, composing them into a short value according to the current byte order and increment the current
 	 * position by two.
 	 * 
