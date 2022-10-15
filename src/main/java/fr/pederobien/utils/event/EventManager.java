@@ -20,13 +20,10 @@ import fr.pederobien.utils.ICancellable;
 public class EventManager {
 	private static final Map<Class<? extends Event>, Map<EventPriority, Queue<Handler>>> HANDLERS;
 	private static final Map<String, Map<Class<? extends Event>, Queue<Handler>>> LISTENERS;
-	private static final List<EventCalledEvent> PENDING_CALLED_EVENT;
-	private static int counter;
 
 	static {
 		HANDLERS = new ConcurrentHashMap<Class<? extends Event>, Map<EventPriority, Queue<Handler>>>();
 		LISTENERS = new ConcurrentHashMap<String, Map<Class<? extends Event>, Queue<Handler>>>();
-		PENDING_CALLED_EVENT = new ArrayList<EventCalledEvent>();
 	}
 
 	/**
@@ -94,17 +91,8 @@ public class EventManager {
 	 * @param event The event to fire.
 	 */
 	public static void callEvent(Event event) {
-		counter++;
-		PENDING_CALLED_EVENT.add(new EventCalledEvent(event));
 		doCall(event);
-		counter--;
-
-		if (counter == 0) {
-			for (EventCalledEvent eventCalled : PENDING_CALLED_EVENT)
-				doCall(eventCalled);
-
-			PENDING_CALLED_EVENT.clear();
-		}
+		doCall(new EventCalledEvent(event));
 	}
 
 	/**
