@@ -104,7 +104,7 @@ public class EventLogger implements IEventListener {
 		return this;
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	private void onLog(EventCalledEvent event) {
 		events.add(event);
 		if (ignored.contains(event.getClass()) || isSuperClassIgnored(event))
