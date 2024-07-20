@@ -117,13 +117,6 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * @return Creates a String based on this buffer.
-	 */
-	public String nextString() {
-		return new String(wrapper.get());
-	}
-
-	/**
 	 * Read the next n bytes, with n equals length, at the given index and creates a string based on the corresponding bytes array,
 	 * and then increment the current position by n.
 	 * 
@@ -154,6 +147,64 @@ public class ReadableByteWrapper {
 			throw new IndexOutOfBoundsException(position);
 
 		this.position = position;
+	}
+	
+	/**
+	 * @return The current position from where a new value can be read.
+	 */
+	public int getPosition() {
+		return position;
+	}
+	
+	/**
+	 * Search in the underlying buffer if the given pattern is present.
+	 * 
+	 * @param pattern The pattern to look for.
+	 * 
+	 * @return -1 if the pattern is not present, or the index of the first occurrence of the pattern.
+	 */
+	public int nextIndexOf(byte[] pattern) {
+		int index = -1;
+		byte[] buffer = wrapper.get();
+		
+		// Iterating over the buffer
+		for (int i = position; i <= buffer.length - pattern.length; i++) {
+			boolean match = true;
+			
+			// Iterating over the pattern
+			for (int j = 0; (j < pattern.length) && match; j++)
+				match &= buffer[i + j] == pattern[j];
+			
+			if (match) {
+				position += pattern.length;
+				return i;
+			}
+			
+			position++;
+		}
+		
+		return index;
+	}
+	
+	/**
+	 * Search in the underlying buffer if the given pattern is present.
+	 * 
+	 * @param position The index to start from.
+	 * @param pattern The pattern to look for.
+	 * 
+	 * @return -1 if the pattern is not present, or the index of the first occurrence of the pattern.
+	 */
+	public int nextIndexOf(int position, byte[] pattern) {
+		setPosition(position);
+		return nextIndexOf(pattern);
+	}
+	
+	/**
+	 * @return Creates a String based on this buffer.
+	 */
+	@Override
+	public String toString() {
+		return new String(wrapper.get());
 	}
 
 	/**
