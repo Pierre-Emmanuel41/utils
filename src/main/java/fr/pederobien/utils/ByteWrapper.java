@@ -267,6 +267,13 @@ public class ByteWrapper {
 	public String getString(int index, int length) {
 		return new String(extract(index, length));
 	}
+	
+	/**
+	 * @return A readable wrapper that wrap the underlying bytes array.
+	 */
+	public ReadableByteWrapper getAsReadableWrapper() {
+		return ReadableByteWrapper.wrap(get());
+	}
 
 	/**
 	 * @return The buffer associated to this wrapper.
