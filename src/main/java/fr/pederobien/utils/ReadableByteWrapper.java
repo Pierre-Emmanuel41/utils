@@ -127,6 +127,13 @@ public class ReadableByteWrapper {
 	public String nextString(int length) {
 		return next(wrapper -> wrapper.getString(position, length), length);
 	}
+	
+	/**
+	 * @return The underlying wrapper that wraps the byte array.
+	 */
+	public ByteWrapper getAsWrapper() {
+		return wrapper;
+	}
 
 	/**
 	 * @return The buffer associated to this wrapper.
