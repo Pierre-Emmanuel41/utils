@@ -1,6 +1,7 @@
 package fr.pederobien.utils;
 
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class AsyncConsole {
 	private static final BlockingQueueTask<Display> TASK;
@@ -112,15 +113,16 @@ public class AsyncConsole {
 	}
 
 	private static class Display {
+		private static final String TIME_FORMATTER = "HH:mm:ss:SSSS";
 		private Object toDisplay;
-		private LocalTime time;
+		private String time;
 		private boolean timeStamp;
 
 		private Display(Object toDisplay, boolean timeStamp) {
 			this.toDisplay = toDisplay;
 			this.timeStamp = timeStamp;
 			if (timeStamp)
-				time = LocalTime.now();
+				time = LocalTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMATTER));
 		}
 
 		public Object getToDisplay() {
@@ -131,7 +133,7 @@ public class AsyncConsole {
 			return timeStamp;
 		}
 
-		public LocalTime getTime() {
+		public String getTime() {
 			return time;
 		}
 	}
