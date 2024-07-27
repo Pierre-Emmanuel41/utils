@@ -1,6 +1,7 @@
 package fr.pederobien.utils;
 
 import java.nio.ByteOrder;
+import java.util.StringJoiner;
 import java.util.function.Function;
 
 public class ReadableByteWrapper {
@@ -57,13 +58,19 @@ public class ReadableByteWrapper {
 
 	/**
 	 * Reads the next n bytes, with n equals length, and increment by n the current position by one.
+	 * If length is -1, read the until the end of the underlying bytes array.
 	 *
 	 * @param The number of bytes to read.
 	 * 
 	 * @return The byte at the current position.
 	 */
 	public byte[] next(int length) {
-		return next(wrapper -> wrapper.extract(position, length), length);
+		if (length > 0)
+			return next(wrapper -> wrapper.extract(position, length), length);
+		else {
+			int lengthToEnd = wrapper.get().length - position;
+			return next(wrapper -> wrapper.extract(position, lengthToEnd), lengthToEnd);
+		}
 	}
 
 	/**
@@ -211,7 +218,10 @@ public class ReadableByteWrapper {
 	 */
 	@Override
 	public String toString() {
-		return new String(wrapper.get());
+		StringJoiner joiner = new StringJoiner(",", "[", "]");
+		for (byte b : get())
+			joiner.add("" + b);
+		return joiner.toString();
 	}
 
 	/**
