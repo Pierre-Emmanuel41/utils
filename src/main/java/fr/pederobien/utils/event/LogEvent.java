@@ -5,10 +5,10 @@ public class LogEvent extends Event {
 	private static final String RED = "\u001B[31m";
 	private static final String YELLOW = "\u001B[33m";
 	private static final String CYAN = "\u001B[96m";
-	private static final String WHITE = "\u001B[37m";
+	private static final String MAGENTA = "\u001B[95m";
 	
 	public enum ELogLevel {
-		INFO(WHITE),
+		INFO(MAGENTA),
 		DEBUG(CYAN),
 		WARNING(YELLOW),
 		ERROR(RED);
@@ -42,41 +42,14 @@ public class LogEvent extends Event {
 	 * Creates a log event.
 	 * 
 	 * @param level The level of the log.
-	 * @param colorise True to display a colored message, false otherwise.
-	 * @param format The formatter if the message to display has arguments.
-	 * @param args The arguments of the message to display.
-	 */
-	public LogEvent(ELogLevel level, boolean colorise, String format, Object... args) {
-		this.level = level;
-		
-		String unformatted = String.format(format, args);
-		if (!colorise)
-			this.message = String.format("[%s] %s", level.name(), unformatted);
-		else {
-			String formatter = "[%s] %s";
-			this.message = String.format(formatter, level.getInColor(level.name()), level.getInColor(unformatted));
-		}
-	}
-
-	/**
-	 * Creates a log event.
-	 * 
-	 * @param level The level of the log.
 	 * @param format The formatter if the message to display has arguments.
 	 * @param args The arguments of the message to display.
 	 */
 	public LogEvent(ELogLevel level, String format, Object... args) {
-		this(level, true, format, args);
-	}
-	
-	/**
-	 * Creates a log event. The log level is INFO.
-	 * 
-	 * @param format The formatter if the message to display has arguments.
-	 * @param args The arguments of the message to display.
-	 */
-	public LogEvent(boolean colorise, String format, Object... args) {
-		this(ELogLevel.INFO, colorise, format, args);
+		this.level = level;
+		
+		String unformatted = String.format(format, args);
+		this.message = String.format("[%s] %s", level.getInColor(level.name()), level.getInColor(unformatted));
 	}
 	
 	/**
@@ -86,7 +59,7 @@ public class LogEvent extends Event {
 	 * @param args The arguments of the message to display.
 	 */
 	public LogEvent(String format, Object... args) {
-		this(false, format, args);
+		this(ELogLevel.INFO, format, args);
 	}
 	
 	/**
