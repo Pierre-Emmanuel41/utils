@@ -14,16 +14,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import fr.pederobien.utils.ICancellable;
 
 public class EventManager {
 	private static final Map<Class<? extends Event>, Map<EventPriority, Queue<Handler>>> HANDLERS;
 	private static final Map<String, Map<Class<? extends Event>, Queue<Handler>>> LISTENERS;
+	private static final List<Event> EVENT_STACK;
 
 	static {
 		HANDLERS = new ConcurrentHashMap<Class<? extends Event>, Map<EventPriority, Queue<Handler>>>();
 		LISTENERS = new ConcurrentHashMap<String, Map<Class<? extends Event>, Queue<Handler>>>();
+		EVENT_STACK = new ArrayList<Event>();
 	}
 
 	/**
@@ -91,8 +94,16 @@ public class EventManager {
 	 * @param event The event to fire.
 	 */
 	public static void callEvent(Event event) {
+		EVENT_STACK.add(event);
 		doCall(event);
-		doCall(new EventCalledEvent(event));
+		
+		if (event == EVENT_STACK.getFirst()) {
+			List<Event> stack = EVENT_STACK.stream().collect(Collectors.toList());
+			EVENT_STACK.clear();
+
+			for (Event called : stack)
+				doCall(new EventCalledEvent(called));
+		}
 	}
 
 	/**
