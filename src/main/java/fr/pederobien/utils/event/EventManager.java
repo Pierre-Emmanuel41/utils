@@ -22,11 +22,13 @@ public class EventManager {
 	private static final Map<Class<? extends Event>, Map<EventPriority, Queue<Handler>>> HANDLERS;
 	private static final Map<String, Map<Class<? extends Event>, Queue<Handler>>> LISTENERS;
 	private static final List<Event> EVENT_STACK;
+	private static final Object LOCK;
 
 	static {
 		HANDLERS = new ConcurrentHashMap<Class<? extends Event>, Map<EventPriority, Queue<Handler>>>();
 		LISTENERS = new ConcurrentHashMap<String, Map<Class<? extends Event>, Queue<Handler>>>();
 		EVENT_STACK = new ArrayList<Event>();
+		LOCK = new Object();
 	}
 
 	/**
@@ -98,8 +100,12 @@ public class EventManager {
 		doCall(event);
 		
 		if (event == EVENT_STACK.getFirst()) {
-			List<Event> stack = EVENT_STACK.stream().collect(Collectors.toList());
-			EVENT_STACK.clear();
+			List<Event> stack;
+			
+			synchronized (LOCK) {
+				stack = EVENT_STACK.stream().collect(Collectors.toList());
+				EVENT_STACK.clear();
+			}
 
 			for (Event called : stack)
 				doCall(new EventCalledEvent(called));
