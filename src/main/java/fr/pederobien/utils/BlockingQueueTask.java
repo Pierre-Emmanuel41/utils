@@ -2,21 +2,22 @@ package fr.pederobien.utils;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 public class BlockingQueueTask<T> {
 	private Thread queueThread;
 	private Consumer<T> consumer;
 	private BlockingQueue<T> queue;
-	private AtomicBoolean disposed;
+	private IDisposable disposable;
 	private boolean isStarted;
+	private Semaphore pause;
 
 	/**
 	 * Create a thread associated to a BlockingQueue.
 	 * 
 	 * @param name     The thread name.
-	 * @param consumer The code to execute when an element is added to this queue.
+	 * @param consumer The code to execute asynchronously when an element is added to this queue.
 	 */
 	public BlockingQueueTask(String name, Consumer<T> consumer) {
 		this.consumer = consumer;
@@ -26,14 +27,15 @@ public class BlockingQueueTask<T> {
 		queueThread = new Thread(() -> internalStart(), name);
 		queueThread.setDaemon(true);
 
-		disposed = new AtomicBoolean(false);
+		disposable = new Disposable();
+		pause = new Semaphore(1, true);
 	}
 
 	/**
 	 * Start the underlying thread in order to perform an action when an element is added.
 	 */
 	public void start() {
-		checkIsDisposed();
+		disposable.checkDisposed();
 
 		if (isStarted)
 			return;
@@ -45,41 +47,51 @@ public class BlockingQueueTask<T> {
 	/**
 	 * Appends the given element in the underlying blocking queue in order to perform an action asynchronously.
 	 * 
-	 * @param e The element to in add.
+	 * @param e The element to add.
 	 */
 	public void add(T e) {
-		checkIsDisposed();
+		disposable.checkDisposed();
 		queue.add(e);
 	}
 
 	/**
+	 * Force the underlying thread to sleep until the method resume is called.
+	 */
+	public void pause() throws InterruptedException {
+		pause.acquire();
+	}
+
+	/**
+	 * Resume the execution of the underlying thread.
+	 */
+	public void resume() {
+		pause.release();
+	}
+	/**
 	 * Dispose this queue. The underlying thread is interrupted, this object is no more reusable.
 	 */
 	public void dispose() {
-		if (!disposed.compareAndSet(false, true))
-			return;
-
-		queueThread.interrupt();
+		if (disposable.dispose())
+			queueThread.interrupt();
 	}
 
 	private boolean isDisposed() {
-		return disposed.get();
+		return disposable.isDisposed();
 	}
 
 	private void internalStart() {
 		while (!isDisposed()) {
 			try {
+				// If function pause has been called,
+				// the thread will wait until function resume is called
+				pause.acquire();
 				consumer.accept(queue.take());
+				pause.release();
 			} catch (InterruptedException e) {
-
+				// Queue has been disposed, nothing to do
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	private void checkIsDisposed() {
-		if (isDisposed())
-			throw new UnsupportedOperationException("Object disposed");
 	}
 }
