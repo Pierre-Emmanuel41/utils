@@ -10,16 +10,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.pederobien.utils.BlockingQueueTask;
-import fr.pederobien.utils.event.LogEvent.ELogLevel;
 
-public class EventLogger implements IEventListener {
+public class Logger implements IEventListener {
 	private BlockingQueueTask<String> queue;
 	private Set<Class<? extends Event>> ignored;
 	private List<EventCalledEvent> events;
 	private AtomicBoolean isRegistered;
 	private boolean newLine, timeStamp;
 
-	private EventLogger() {
+	private Logger() {
 		ignored = new HashSet<Class<? extends Event>>();
 		events = Collections.synchronizedList(new ArrayList<>());
 		isRegistered = new AtomicBoolean(false);
@@ -75,12 +74,12 @@ public class EventLogger implements IEventListener {
 	/**
 	 * @return The singleton instance of this logger.
 	 */
-	public static EventLogger instance() {
+	public static Logger instance() {
 		return SingletonHolder.LOGGER;
 	}
 
 	private static class SingletonHolder {
-		private static final EventLogger LOGGER = new EventLogger();
+		private static final Logger LOGGER = new Logger();
 	}
 
 	/**
@@ -89,7 +88,7 @@ public class EventLogger implements IEventListener {
 	 * 
 	 * @param clazz The class of event to not display.
 	 */
-	public <T extends Event> EventLogger ignore(Class<T> clazz) {
+	public <T extends Event> Logger ignore(Class<T> clazz) {
 		if (ignored.contains(clazz))
 			return this;
 		ignored.add(clazz);
@@ -142,7 +141,7 @@ public class EventLogger implements IEventListener {
 	 * 
 	 * @return This logger.
 	 */
-	public EventLogger newLine(boolean newLine) {
+	public Logger newLine(boolean newLine) {
 		this.newLine = newLine;
 		return this;
 	}
@@ -154,7 +153,7 @@ public class EventLogger implements IEventListener {
 	 * 
 	 * @return This logger.
 	 */
-	public EventLogger timeStamp(boolean timeStamp) {
+	public Logger timeStamp(boolean timeStamp) {
 		this.timeStamp = timeStamp;
 		return this;
 	}
@@ -198,5 +197,70 @@ public class EventLogger implements IEventListener {
 			if (ignored.contains(clazz))
 				return true;
 		return false;
+	}
+
+	public enum ELogLevel {
+
+		// No color
+		NONE("\u001B[0m"),
+
+		// Magenta
+		INFO("\u001B[95m"),
+
+		// Cyan
+		DEBUG("\u001B[96m"),
+
+		// Yellow
+		WARNING("\u001B[33m"),
+
+		// Red
+		ERROR("\u001B[31m");
+
+		private String color;
+
+		/**
+		 * Creates a log level associated to a color.
+		 * 
+		 * @param color The color used to display the log message.
+		 */
+		private ELogLevel(String color) {
+			this.color = color;
+		}
+
+		/**
+		 * Get a colored message base on the log level.
+		 * 
+		 * @param message The message to encapsulate in color.
+		 * 
+		 * @return The colored message.
+		 */
+		public String getInColor(String message) {
+			return String.format("%s %s %s", color, message, NONE.color);
+		}
+	}
+
+	private static class LogEvent extends Event {
+		private String message;
+
+		/**
+		 * Creates a log event.
+		 * 
+		 * @param level  The level of the log.
+		 * @param format The formatter if the message to display has arguments.
+		 * @param args   The arguments of the message to display.
+		 */
+		public LogEvent(ELogLevel level, String format, Object... args) {
+			String raw = String.format(format, args);
+			if (level == ELogLevel.NONE) {
+				message = raw;
+			} else {
+				message = String.format("[%s] %s", level.getInColor(level.name()), level.getInColor(raw));
+			}
+		}
+
+		@Override
+		public String toString() {
+			return message;
+		}
 	}
 }
