@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.pederobien.utils.AsyncConsole;
+import fr.pederobien.utils.event.LogEvent.ELogLevel;
 
 public class EventLogger implements IEventListener {
 	private Set<Class<? extends Event>> ignored;
@@ -22,6 +23,46 @@ public class EventLogger implements IEventListener {
 	}
 
 	/**
+	 * Creates a LogEvent with log level INFO and the given formatted text.
+	 * 
+	 * @param format The formatter if the message to display has arguments.
+	 * @param args   The arguments of the message to display.
+	 */
+	public static void info(String format, Object... args) {
+		instance().print(new LogEvent(ELogLevel.INFO, format, args));
+	}
+
+	/**
+	 * Creates a LogEvent with log level DEBUG and the given formatted text.
+	 * 
+	 * @param format The formatter if the message to display has arguments.
+	 * @param args   The arguments of the message to display.
+	 */
+	public static void debug(String format, Object... args) {
+		instance().print(new LogEvent(ELogLevel.DEBUG, format, args));
+	}
+
+	/**
+	 * Creates a LogEvent with log level WARNING and the given formatted text.
+	 * 
+	 * @param format The formatter if the message to display has arguments.
+	 * @param args   The arguments of the message to display.
+	 */
+	public static void warning(String format, Object... args) {
+		instance().print(new LogEvent(ELogLevel.WARNING, format, args));
+	}
+
+	/**
+	 * Creates a LogEvent with log level ERROR and the given formatted text.
+	 * 
+	 * @param format The formatter if the message to display has arguments.
+	 * @param args   The arguments of the message to display.
+	 */
+	public static void error(String format, Object... args) {
+		instance().print(new LogEvent(ELogLevel.ERROR, format, args));
+	}
+
+	/**
 	 * @return The singleton instance of this logger.
 	 */
 	public static EventLogger instance() {
@@ -33,7 +74,8 @@ public class EventLogger implements IEventListener {
 	}
 
 	/**
-	 * Specifies a class of event that when called, should not be displayed by this logger.
+	 * Specifies a class of event that when called, should not be displayed by this
+	 * logger.
 	 * 
 	 * @param clazz The class of event to not display.
 	 */
@@ -54,7 +96,8 @@ public class EventLogger implements IEventListener {
 	}
 
 	/**
-	 * Register this listener in the EventManager in order to display the registered event to be called.
+	 * Register this listener in the EventManager in order to display the registered
+	 * event to be called.
 	 */
 	public void register() {
 		if (!isRegistered.compareAndSet(false, true))
@@ -64,7 +107,8 @@ public class EventLogger implements IEventListener {
 	}
 
 	/**
-	 * Unregister this listener from the EventManager in order to not be notified when an event is thrown.
+	 * Unregister this listener from the EventManager in order to not be notified
+	 * when an event is thrown.
 	 */
 	public void unregister() {
 		if (!isRegistered.compareAndSet(true, false))
@@ -74,7 +118,8 @@ public class EventLogger implements IEventListener {
 	}
 
 	/**
-	 * @return The list that contains all events thrown while this logger was registered.
+	 * @return The list that contains all events thrown while this logger was
+	 *         registered.
 	 */
 	public List<EventCalledEvent> getEvents() {
 		return new ArrayList<EventCalledEvent>(events);
@@ -110,16 +155,25 @@ public class EventLogger implements IEventListener {
 		if (ignored.contains(event.getClass()) || isSuperClassIgnored(event))
 			return;
 
+		print(event.getEvent());
+	}
+
+	/**
+	 * Print the event in the console.
+	 * 
+	 * @param event The event to print.
+	 */
+	private void print(Event event) {
 		if (newLine) {
 			if (timeStamp)
-				AsyncConsole.printlnWithTimeStamp(event.getEvent());
+				AsyncConsole.printlnWithTimeStamp(event);
 			else
-				AsyncConsole.println(event.getEvent());
+				AsyncConsole.println(event);
 		} else {
 			if (timeStamp)
-				AsyncConsole.printWithTimeStamp(event.getEvent());
+				AsyncConsole.printWithTimeStamp(event);
 			else
-				AsyncConsole.print(event.getEvent());
+				AsyncConsole.print(event);
 		}
 	}
 
@@ -130,7 +184,8 @@ public class EventLogger implements IEventListener {
 	 * @return True if a super class is forbidden, false otherwise.
 	 */
 	private boolean isSuperClassIgnored(EventCalledEvent event) {
-		for (Class<?> clazz = event.getEvent().getClass(); Event.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass())
+		for (Class<?> clazz = event.getEvent().getClass(); Event.class
+				.isAssignableFrom(clazz); clazz = clazz.getSuperclass())
 			if (ignored.contains(clazz))
 				return true;
 		return false;
