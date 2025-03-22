@@ -1,5 +1,7 @@
 package fr.pederobien.utils.event;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -7,10 +9,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import fr.pederobien.utils.AsyncConsole;
+import fr.pederobien.utils.BlockingQueueTask;
 import fr.pederobien.utils.event.LogEvent.ELogLevel;
 
 public class EventLogger implements IEventListener {
+	private BlockingQueueTask<String> queue;
 	private Set<Class<? extends Event>> ignored;
 	private List<EventCalledEvent> events;
 	private AtomicBoolean isRegistered;
@@ -20,6 +23,9 @@ public class EventLogger implements IEventListener {
 		ignored = new HashSet<Class<? extends Event>>();
 		events = Collections.synchronizedList(new ArrayList<>());
 		isRegistered = new AtomicBoolean(false);
+
+		queue = new BlockingQueueTask<String>("AsyncConsole", text -> System.out.print(text));
+		queue.start();
 	}
 
 	/**
@@ -60,6 +66,10 @@ public class EventLogger implements IEventListener {
 	 */
 	public static void error(String format, Object... args) {
 		instance().print(new LogEvent(ELogLevel.ERROR, format, args));
+	}
+
+	public static void print(String format, Object... args) {
+		instance().print(new LogEvent(ELogLevel.NONE, format, args));
 	}
 
 	/**
@@ -164,17 +174,16 @@ public class EventLogger implements IEventListener {
 	 * @param event The event to print.
 	 */
 	private void print(Event event) {
-		if (newLine) {
-			if (timeStamp)
-				AsyncConsole.printlnWithTimeStamp(event);
-			else
-				AsyncConsole.println(event);
-		} else {
-			if (timeStamp)
-				AsyncConsole.printWithTimeStamp(event);
-			else
-				AsyncConsole.print(event);
+		String text = event.toString();
+		if (timeStamp) {
+			String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss:SSSS"));
+			text = String.format("[%s] %s", time, text);
 		}
+
+		if (newLine)
+			text = String.format("%s\n", text);
+
+		queue.add(text);
 	}
 
 	/**

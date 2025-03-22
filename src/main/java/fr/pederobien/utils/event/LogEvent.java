@@ -6,15 +6,12 @@ public class LogEvent extends Event {
 	private static final String YELLOW = "\u001B[33m";
 	private static final String CYAN = "\u001B[96m";
 	private static final String MAGENTA = "\u001B[95m";
-	
+
 	public enum ELogLevel {
-		INFO(MAGENTA),
-		DEBUG(CYAN),
-		WARNING(YELLOW),
-		ERROR(RED);
-		
+		NONE(RESET), INFO(MAGENTA), DEBUG(CYAN), WARNING(YELLOW), ERROR(RED);
+
 		private String color;
-		
+
 		/**
 		 * Creates a log level associated to a color.
 		 * 
@@ -23,7 +20,7 @@ public class LogEvent extends Event {
 		private ELogLevel(String color) {
 			this.color = color;
 		}
-		
+
 		/**
 		 * Get a colored message base on the log level.
 		 * 
@@ -35,33 +32,38 @@ public class LogEvent extends Event {
 			return String.format("%s %s %s", color, message, RESET);
 		}
 	}
+
 	private ELogLevel level;
 	private String message;
-	
+
 	/**
 	 * Creates a log event.
 	 * 
-	 * @param level The level of the log.
+	 * @param level  The level of the log.
 	 * @param format The formatter if the message to display has arguments.
-	 * @param args The arguments of the message to display.
+	 * @param args   The arguments of the message to display.
 	 */
 	public LogEvent(ELogLevel level, String format, Object... args) {
 		this.level = level;
-		
-		String unformatted = String.format(format, args);
-		this.message = String.format("[%s] %s", level.getInColor(level.name()), level.getInColor(unformatted));
+
+		String raw = String.format(format, args);
+		if (level == ELogLevel.NONE) {
+			message = raw;
+		} else {
+			message = String.format("[%s] %s", level.getInColor(level.name()), level.getInColor(raw));
+		}
 	}
-	
+
 	/**
 	 * Creates a log event. The log level is INFO.
 	 * 
 	 * @param format The formatter if the message to display has arguments.
-	 * @param args The arguments of the message to display.
+	 * @param args   The arguments of the message to display.
 	 */
 	public LogEvent(String format, Object... args) {
 		this(ELogLevel.INFO, format, args);
 	}
-	
+
 	/**
 	 * @return The log level of this event.
 	 */
