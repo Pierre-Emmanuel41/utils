@@ -2,10 +2,7 @@ package fr.pederobien.utils.event;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -14,13 +11,11 @@ import fr.pederobien.utils.BlockingQueueTask;
 public class Logger implements IEventListener {
 	private BlockingQueueTask<String> queue;
 	private Set<Class<? extends Event>> ignored;
-	private List<EventCalledEvent> events;
 	private AtomicBoolean isRegistered;
 	private boolean newLine, timeStamp;
 
 	private Logger() {
 		ignored = new HashSet<Class<? extends Event>>();
-		events = Collections.synchronizedList(new ArrayList<>());
 		isRegistered = new AtomicBoolean(false);
 
 		queue = new BlockingQueueTask<String>("AsyncConsole", text -> System.out.print(text));
@@ -67,6 +62,12 @@ public class Logger implements IEventListener {
 		instance().print(new LogEvent(ELogLevel.ERROR, format, args));
 	}
 
+	/**
+	 * Creates a LogEvent with log level NONE and the given formatted text.
+	 * 
+	 * @param format The formatter if the message to display has arguments.
+	 * @param args   The arguments of the message to display.
+	 */
 	public static void print(String format, Object... args) {
 		instance().print(new LogEvent(ELogLevel.NONE, format, args));
 	}
@@ -127,14 +128,6 @@ public class Logger implements IEventListener {
 	}
 
 	/**
-	 * @return The list that contains all events thrown while this logger was
-	 *         registered.
-	 */
-	public List<EventCalledEvent> getEvents() {
-		return new ArrayList<EventCalledEvent>(events);
-	}
-
-	/**
 	 * Set if a new line should be displayed after displaying a thrown event.
 	 * 
 	 * @param newLine True in order to display a new line after, false otherwise.
@@ -158,9 +151,20 @@ public class Logger implements IEventListener {
 		return this;
 	}
 
+	/**
+	 * Set if the logs shall be displayed in color depending on their level.
+	 * 
+	 * @param colorized True to display with color, false otherwise.
+	 * 
+	 * @return This logger.
+	 */
+	public Logger colorized(boolean colorized) {
+		LogEvent.colorized = colorized;
+		return this;
+	}
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	private void onLog(EventCalledEvent event) {
-		events.add(event);
 		if (ignored.contains(event.getClass()) || isSuperClassIgnored(event))
 			return;
 
@@ -240,6 +244,7 @@ public class Logger implements IEventListener {
 	}
 
 	private static class LogEvent extends Event {
+		private static boolean colorized;
 		private String message;
 
 		/**
@@ -249,12 +254,14 @@ public class Logger implements IEventListener {
 		 * @param format The formatter if the message to display has arguments.
 		 * @param args   The arguments of the message to display.
 		 */
-		public LogEvent(ELogLevel level, String format, Object... args) {
+		private LogEvent(ELogLevel level, String format, Object... args) {
 			String raw = String.format(format, args);
 			if (level == ELogLevel.NONE) {
 				message = raw;
 			} else {
-				message = String.format("[%s] %s", level.getInColor(level.name()), level.getInColor(raw));
+				message = String.format("[%s] %s", level.name(), raw);
+				if (colorized)
+					message = level.getInColor(message);
 			}
 		}
 
