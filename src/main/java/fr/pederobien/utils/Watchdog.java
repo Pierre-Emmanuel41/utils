@@ -7,10 +7,11 @@ import java.util.concurrent.TimeUnit;
 public class Watchdog {
 
 	/**
-	 * Execute asynchronously the runnable and block until the end of the execution or until a timeout occurs.
+	 * Execute asynchronously the runnable and block until the end of the execution
+	 * or until a timeout occurs.
 	 * 
 	 * @param executable The code to execute.
-	 * @param timeout The timeout in ms.
+	 * @param timeout    The timeout in ms.
 	 * 
 	 * @return True if no timeout occurred, false otherwise.
 	 */
@@ -23,7 +24,7 @@ public class Watchdog {
 	 * block until the end of the execution or for a timeout.
 	 * 
 	 * @param executable The code to execute.
-	 * @param timeout The timeout in ms.
+	 * @param timeout    The timeout in ms.
 	 * 
 	 * @return The watchdog to execute the monitored task.
 	 */
@@ -44,7 +45,7 @@ public class Watchdog {
 		 * Creates a watchdog to execute code asynchronously within a limited time.
 		 * 
 		 * @param executable The code to execute.
-		 * @param timeout The time, in ms, after which a timeout occurs.
+		 * @param timeout    The time, in ms, after which a timeout occurs.
 		 */
 		private WatchdogStakeholder(IExecutable executable, int timeout) {
 			this.executable = executable;
@@ -71,9 +72,11 @@ public class Watchdog {
 		}
 
 		/**
-		 * Start the execution the of task in a separated thread and block until the end of it execution.
+		 * Start the execution the of task in a separated thread and block until the end
+		 * of it execution.
 		 * 
-		 * @return True if the task execution ended in time, false if a timeout occurred or if the task was cancelled.
+		 * @return True if the task execution ended in time, false if a timeout occurred
+		 *         or if the task was cancelled.
 		 */
 		public boolean start() throws InterruptedException {
 			cancelled = false;
@@ -114,13 +117,15 @@ public class Watchdog {
 				worker = new Thread(() -> work(), "Worker");
 				worker.start();
 
-				// Waiting a little bit to be sure the worker thread acquired the monitor semaphore
+				// Waiting a little bit to be sure the worker thread acquired the monitor
+				// semaphore
 				countdownLatch.countDown();
 				countdownLatch.await();
 
 				boolean inTime = monitor.tryAcquire(timeout, TimeUnit.MILLISECONDS);
 
-				// When the execution is cancelled, inTime will be true as the monitor is released
+				// When the execution is cancelled, inTime will be true as the monitor is
+				// released
 				success = (cancelled || exception || !inTime) ? false : true;
 
 			} catch (InterruptedException e) {

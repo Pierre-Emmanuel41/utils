@@ -26,7 +26,8 @@ public class Observable<T> {
 	}
 
 	/**
-	 * Removes the given observers from the list of observer for this observable object.
+	 * Removes the given observers from the list of observer for this observable
+	 * object.
 	 * 
 	 * @param obs The observer to remove.
 	 */
@@ -37,7 +38,8 @@ public class Observable<T> {
 	/**
 	 * Notify each observer that something has changed.
 	 * 
-	 * @param consumer The consumer used to know which method should be called on each observer.
+	 * @param consumer The consumer used to know which method should be called on
+	 *                 each observer.
 	 */
 	public void notifyObservers(Consumer<T> consumer) {
 		if (size() > 0)
@@ -48,7 +50,8 @@ public class Observable<T> {
 	 * Notify each observer that something has changed.
 	 * 
 	 * @param predicate A condition for each observer to be notified.
-	 * @param consumer  The consumer used to know which method should be called on each observer.
+	 * @param consumer  The consumer used to know which method should be called on
+	 *                  each observer.
 	 */
 	public void notifyObservers(Predicate<T> predicate, Consumer<T> consumer) {
 		if (size() > 0)
@@ -63,7 +66,8 @@ public class Observable<T> {
 	}
 
 	/**
-	 * @return A list that contains all registered observers for this observable. This list is unmodifiable.
+	 * @return A list that contains all registered observers for this observable.
+	 *         This list is unmodifiable.
 	 */
 	public List<T> getObservers() {
 		return Collections.unmodifiableList(new ArrayList<>(observers));

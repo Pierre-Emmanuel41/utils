@@ -27,8 +27,8 @@ public class EventManager {
 	}
 
 	/**
-	 * Register the given event listener for events handling. There is no mechanism to check if the listener is already registered or
-	 * not.
+	 * Register the given event listener for events handling. There is no mechanism
+	 * to check if the listener is already registered or not.
 	 * 
 	 * @param eventListener The listener that gather event handlers.
 	 */
@@ -44,7 +44,8 @@ public class EventManager {
 			// Creating a new Map if there is no event handler registered for the event.
 			if (eventHandlers == null) {
 				// Creating a map in order to associated the priority with an empty list.
-				EnumMap<EventPriority, Queue<Handler>> enumMap = new EnumMap<EventPriority, Queue<Handler>>(EventPriority.class);
+				EnumMap<EventPriority, Queue<Handler>> enumMap = new EnumMap<EventPriority, Queue<Handler>>(
+						EventPriority.class);
 				for (EventPriority priority : EventPriority.values())
 					enumMap.put(priority, new ConcurrentLinkedQueue<Handler>());
 
@@ -85,8 +86,9 @@ public class EventManager {
 	}
 
 	/**
-	 * Fire an {@link EventCallEvent} first, then fire the given event and dispatch it among the event handlers. It is recommended
-	 * that each event overrides the toString method in order to display the value of each parameter.
+	 * Fire an {@link EventCallEvent} first, then fire the given event and dispatch
+	 * it among the event handlers. It is recommended that each event overrides the
+	 * toString method in order to display the value of each parameter.
 	 * 
 	 * @param event The event to fire.
 	 */
@@ -96,8 +98,9 @@ public class EventManager {
 	}
 
 	/**
-	 * Fire the event among the event handlers and run the given runnable if the given event class does not implements
-	 * {@link ICancellable} interface of if the event has not been cancelled.
+	 * Fire the event among the event handlers and run the given runnable if the
+	 * given event class does not implements {@link ICancellable} interface of if
+	 * the event has not been cancelled.
 	 * 
 	 * @param event    The event to fire.
 	 * @param runnable The code to run if the event is not cancelled.
@@ -109,8 +112,9 @@ public class EventManager {
 	}
 
 	/**
-	 * First fire the preEvent among the event, then fire the postEvent if the given <code>preEvent</code> class does not implements
-	 * {@link ICancellable} interface of if the event has not been cancelled.
+	 * First fire the preEvent among the event, then fire the postEvent if the given
+	 * <code>preEvent</code> class does not implements {@link ICancellable}
+	 * interface of if the event has not been cancelled.
 	 * 
 	 * @param preEvent The event to thrown first.
 	 * @param posEvent The event to thrown at the end.
@@ -120,8 +124,9 @@ public class EventManager {
 	}
 
 	/**
-	 * First fire the preEvent among the event, then run the given exe if the given event class does not implements
-	 * {@link ICancellable} interface of if the event has not been cancelled and finally fire the postEvent.
+	 * First fire the preEvent among the event, then run the given exe if the given
+	 * event class does not implements {@link ICancellable} interface of if the
+	 * event has not been cancelled and finally fire the postEvent.
 	 * 
 	 * @param preEvent The event to thrown first.
 	 * @param exe      The code to execute if the event has not been cancelled.
@@ -136,11 +141,13 @@ public class EventManager {
 	}
 
 	/**
-	 * First fire the preEvent among the event, then run the given exe if the given event class does not implements
-	 * {@link ICancellable} interface of if the event has not been cancelled and finally fire the postEvent.
+	 * First fire the preEvent among the event, then run the given exe if the given
+	 * event class does not implements {@link ICancellable} interface of if the
+	 * event has not been cancelled and finally fire the postEvent.
 	 * 
 	 * @param preEvent The event to thrown first.
-	 * @param exe      The code to execute if the event has not been cancelled and specify if the post event should be thrown or not.
+	 * @param exe      The code to execute if the event has not been cancelled and
+	 *                 specify if the post event should be thrown or not.
 	 * @param posEvent The event to thrown at the end.
 	 */
 	public static void callEvent(Event preEvent, Supplier<Boolean> exe, Event posEvent) {
@@ -152,12 +159,15 @@ public class EventManager {
 	}
 
 	/**
-	 * First fire the preEvent among the event, then run the given exe if the given event class does not implements
-	 * {@link ICancellable} interface of if the event has not been cancelled and finally fire the postEvent.
+	 * First fire the preEvent among the event, then run the given exe if the given
+	 * event class does not implements {@link ICancellable} interface of if the
+	 * event has not been cancelled and finally fire the postEvent.
 	 * 
 	 * @param preEvent The event to thrown first.
-	 * @param exe      The code to execute if the event has not been cancelled and specify the type of the created object.
-	 * @param posEvent A function to create the postEvent depending on the created object.
+	 * @param exe      The code to execute if the event has not been cancelled and
+	 *                 specify the type of the created object.
+	 * @param posEvent A function to create the postEvent depending on the created
+	 *                 object.
 	 */
 	public static <T> T callEvent(Event preEvent, Supplier<T> exe, Function<T, Event> postEvent) {
 		callEvent(preEvent);
@@ -187,9 +197,10 @@ public class EventManager {
 				continue;
 
 			final Class<?> checkClass;
-			if (method.getParameterTypes().length != 1 || !Event.class.isAssignableFrom(checkClass = method.getParameterTypes()[0])) {
-				String message = String.format("%s attempt to register an invalid event handler method signature %s", eventListener.getListenerName(),
-						method.toGenericString());
+			if (method.getParameterTypes().length != 1
+					|| !Event.class.isAssignableFrom(checkClass = method.getParameterTypes()[0])) {
+				String message = String.format("%s attempt to register an invalid event handler method signature %s",
+						eventListener.getListenerName(), method.toGenericString());
 				throw new EventRegistrationException(message);
 			}
 
@@ -205,7 +216,8 @@ public class EventManager {
 			// Checking if event is deprecated.
 			for (Class<?> clazz = eventClass; Event.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass()) {
 				if (clazz.getAnnotation(Deprecated.class) != null)
-					throw new EventRegistrationException(String.format("%s is a deprecated event", eventClass.getSimpleName()));
+					throw new EventRegistrationException(
+							String.format("%s is a deprecated event", eventClass.getSimpleName()));
 			}
 
 			eventHandlerList.add(new Handler(eventListener, eventHandler, method));
@@ -238,7 +250,8 @@ public class EventManager {
 	 * 
 	 * @param listener The listener used to create a unique name.
 	 * 
-	 * @return The following string : <code>&lt;listenerName&gt;@&lt;hashcode&gt;</code>
+	 * @return The following string :
+	 *         <code>&lt;listenerName&gt;@&lt;hashcode&gt;</code>
 	 */
 	private static String getListenerName(IEventListener listener) {
 		return String.format("%s@%s", listener.getListenerName(), listener.hashCode());

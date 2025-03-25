@@ -15,20 +15,24 @@ public class ApplicationLock {
 	private FileLock fileLock;
 
 	/**
-	 * Creates an application lock associated to the given name. When the application tries to lock an instance, a file is created
-	 * using the given name at the specified path. A ShutDownHook is register in order to delete the file in response of the Java
-	 * virtual machine shut down.
+	 * Creates an application lock associated to the given name. When the
+	 * application tries to lock an instance, a file is created using the given name
+	 * at the specified path. A ShutDownHook is register in order to delete the file
+	 * in response of the Java virtual machine shut down.
 	 * 
 	 * <p>
-	 * The Java virtual machine <i>shuts down</i> in response to two kinds of events:
+	 * The Java virtual machine <i>shuts down</i> in response to two kinds of
+	 * events:
 	 *
 	 * <ul>
 	 *
-	 * <li>The program <i>exits</i> normally, when the last non-daemon thread exits or when the <tt>{@link #exit exit}</tt>
-	 * (equivalently, {@link System#exit(int) System.exit}) method is invoked, or
+	 * <li>The program <i>exits</i> normally, when the last non-daemon thread exits
+	 * or when the <tt>{@link #exit exit}</tt> (equivalently,
+	 * {@link System#exit(int) System.exit}) method is invoked, or
 	 *
-	 * <li>The virtual machine is <i>terminated</i> in response to a user interrupt, such as typing <tt>^C</tt>, or a system-wide
-	 * event, such as user logoff or system shutdown.
+	 * <li>The virtual machine is <i>terminated</i> in response to a user interrupt,
+	 * such as typing <tt>^C</tt>, or a system-wide event, such as user logoff or
+	 * system shutdown.
 	 *
 	 * </ul>
 	 * 
@@ -41,7 +45,8 @@ public class ApplicationLock {
 	}
 
 	/**
-	 * Lock an instance of the application. This method creates an underlying file locked until the lock is released.
+	 * Lock an instance of the application. This method creates an underlying file
+	 * locked until the lock is released.
 	 * 
 	 * @return True if a lock has been acquired, false otherwise.
 	 */

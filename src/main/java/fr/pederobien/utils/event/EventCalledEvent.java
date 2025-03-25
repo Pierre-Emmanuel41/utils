@@ -7,7 +7,8 @@ public class EventCalledEvent extends Event {
 	private LocalDateTime time;
 
 	/**
-	 * Creates an event thrown when an event has been registered in the {@link EventManager} in order to be called.
+	 * Creates an event thrown when an event has been registered in the
+	 * {@link EventManager} in order to be called.
 	 * 
 	 * @param event The registered event to be called.
 	 */

@@ -16,12 +16,15 @@ public interface Consumer4<T, T1, T2, T3> {
 	void accept(T t, T1 t1, T2 t2, T3 t3);
 
 	/**
-	 * Returns a composed {@code Consumer} that performs, in sequence, this operation followed by the {@code after} operation. If
-	 * performing either operation throws an exception, it is relayed to the caller of the composed operation. If performing this
-	 * operation throws an exception, the {@code after} operation will not be performed.
+	 * Returns a composed {@code Consumer} that performs, in sequence, this
+	 * operation followed by the {@code after} operation. If performing either
+	 * operation throws an exception, it is relayed to the caller of the composed
+	 * operation. If performing this operation throws an exception, the
+	 * {@code after} operation will not be performed.
 	 *
 	 * @param after the operation to perform after this operation
-	 * @return a composed {@code Consumer} that performs in sequence this operation followed by the {@code after} operation
+	 * @return a composed {@code Consumer} that performs in sequence this operation
+	 *         followed by the {@code after} operation
 	 * @throws NullPointerException if {@code after} is null
 	 */
 	default Consumer4<T, T1, T2, T3> andThen(Consumer4<? super T, ? super T1, ? super T2, ? super T3> after) {

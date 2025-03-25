@@ -30,7 +30,8 @@ public class CancellableBlockingQueueTask<T> {
 	}
 
 	/**
-	 * Start the underlying thread in order to perform an action when an element is added.
+	 * Start the underlying thread in order to perform an action when an element is
+	 * added.
 	 */
 	public void start() {
 		checkIsDisposed();
@@ -43,7 +44,8 @@ public class CancellableBlockingQueueTask<T> {
 	}
 
 	/**
-	 * Appends the given element in the underlying blocking queue in order to perform an action asynchronously.
+	 * Appends the given element in the underlying blocking queue in order to
+	 * perform an action asynchronously.
 	 * 
 	 * @param e The element to in add.
 	 * 
@@ -57,7 +59,8 @@ public class CancellableBlockingQueueTask<T> {
 	}
 
 	/**
-	 * Dispose this queue. The underlying thread is interrupted, this object is no more reusable.
+	 * Dispose this queue. The underlying thread is interrupted, this object is no
+	 * more reusable.
 	 */
 	public void dispose() {
 		if (!disposed.compareAndSet(false, true))
