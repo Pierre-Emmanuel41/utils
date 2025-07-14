@@ -1,7 +1,8 @@
 package fr.pederobien.utils.event;
 
 public class PropertyChangeEvent<T> extends Event {
-	private T oldValue, newValue;
+	private final T oldValue;
+    private final T newValue;
 
 	/**
 	 * Creates an event thrown when the value of a property has changed.

@@ -8,8 +8,8 @@ import java.nio.channels.FileLock;
 import java.nio.file.Path;
 
 public class ApplicationLock {
-	private String name;
-	private Path path;
+	private final String name;
+	private final Path path;
 	private File lock;
 	private FileChannel fileChannel;
 	private FileLock fileLock;
@@ -33,7 +33,6 @@ public class ApplicationLock {
 	 * <li>The virtual machine is <i>terminated</i> in response to a user interrupt,
 	 * such as typing <tt>^C</tt>, or a system-wide event, such as user logoff or
 	 * system shutdown.
-	 *
 	 * </ul>
 	 * 
 	 * @param name The application name.
@@ -66,7 +65,7 @@ public class ApplicationLock {
 				return false;
 			}
 
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> unlock()));
+			Runtime.getRuntime().addShutdownHook(new Thread(this::unlock));
 		} catch (IOException e) {
 			return false;
 		}

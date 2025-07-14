@@ -21,7 +21,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Create a new wrapper based on the the given byte array. The default byte
+	 * Create a new wrapper based on the given byte array. The default byte
 	 * order is Big-Endian.
 	 * 
 	 * @param buffer The byte array to wrap.
@@ -33,7 +33,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Create a new wrapper based on the the given byte array.
+	 * Create a new wrapper based on the given byte array.
 	 * 
 	 * @param buffer     The byte array to wrap.
 	 * @param endianness The byte order to use.
@@ -217,7 +217,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Reads four bytes at the given index, composing them into a int value
+	 * Reads four bytes at the given index, composing them into an int value
 	 * according to the current byte order.
 	 *
 	 * @param index The index from which the bytes will be read.
@@ -303,7 +303,7 @@ public class ByteWrapper {
 	 * corresponding bytes array. The source array is modified such as the returned
 	 * bytes array is no more contained in this wrapper.
 	 * 
-	 * @param index  The index from which the bytes will be take.
+	 * @param index  The index from which the bytes will be taken.
 	 * @param length The number of bytes to take.
 	 * 
 	 * @return A bytes array.

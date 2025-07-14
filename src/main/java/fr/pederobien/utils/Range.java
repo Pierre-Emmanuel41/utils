@@ -15,7 +15,7 @@ public class Range<T extends Number & Comparable<T>> {
 		return new Range<T>(fromInclusive, toInclusive);
 	}
 
-	private T fromInclusive, toInclusive;
+	private final T fromInclusive, toInclusive;
 
 	/**
 	 * Creates a range with the specified minimum value and maximum value.

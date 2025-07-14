@@ -27,7 +27,7 @@ public interface IPausable {
 	 */
 	PausableState getState();
 
-	public enum PausableState {
+	enum PausableState {
 		/**
 		 * When the object is instantiated but not started or has been stopped.
 		 */

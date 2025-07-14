@@ -9,16 +9,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import fr.pederobien.utils.BlockingQueueTask;
 
 public class Logger implements IEventListener {
-	private BlockingQueueTask<String> queue;
-	private Set<Class<? extends Event>> ignored;
-	private AtomicBoolean isRegistered;
+	private final BlockingQueueTask<String> queue;
+	private final Set<Class<? extends Event>> ignored;
+	private final AtomicBoolean isRegistered;
 	private boolean newLine, timeStamp;
 
 	private Logger() {
 		ignored = new HashSet<Class<? extends Event>>();
 		isRegistered = new AtomicBoolean(false);
 
-		queue = new BlockingQueueTask<String>("AsyncConsole", text -> System.out.print(text));
+		queue = new BlockingQueueTask<String>("AsyncConsole", System.out::print);
 		queue.start();
 	}
 
@@ -97,7 +97,7 @@ public class Logger implements IEventListener {
 	}
 
 	/**
-	 * Specifies a class of event that when called are not ignored any more.
+	 * Specifies a class of event that when called are not ignored anymore.
 	 * 
 	 * @param clazz The class to not ignore.
 	 */
@@ -140,7 +140,7 @@ public class Logger implements IEventListener {
 	}
 
 	/**
-	 * Set if a the time stamp should be displayed before a thrown event.
+	 * Set if the time stamp should be displayed before a thrown event.
 	 * 
 	 * @param timeStamp True in order to display the time stamp, false otherwise.
 	 * 
@@ -220,14 +220,14 @@ public class Logger implements IEventListener {
 		// Red
 		ERROR("\u001B[31m");
 
-		private String color;
+		private final String color;
 
 		/**
 		 * Creates a log level associated to a color.
 		 * 
 		 * @param color The color used to display the log message.
 		 */
-		private ELogLevel(String color) {
+		ELogLevel(String color) {
 			this.color = color;
 		}
 

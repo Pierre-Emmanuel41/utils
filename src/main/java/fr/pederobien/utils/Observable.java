@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class Observable<T> {
-	private BlockingQueue<T> observers;
+	private final BlockingQueue<T> observers;
 
 	public Observable() {
 		observers = new ArrayBlockingQueue<T>(10000);
@@ -70,7 +70,7 @@ public class Observable<T> {
 	 *         This list is unmodifiable.
 	 */
 	public List<T> getObservers() {
-		return Collections.unmodifiableList(new ArrayList<>(observers));
+		return List.copyOf(observers);
 	}
 
 	private void internalNotify(Stream<T> observers, Consumer<T> consumer) {

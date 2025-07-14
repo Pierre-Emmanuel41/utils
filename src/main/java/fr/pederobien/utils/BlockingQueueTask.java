@@ -6,12 +6,12 @@ import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 public class BlockingQueueTask<T> {
-	private Thread queueThread;
-	private Consumer<T> consumer;
-	private BlockingQueue<T> queue;
-	private IDisposable disposable;
+	private final Thread queueThread;
+	private final Consumer<T> consumer;
+	private final BlockingQueue<T> queue;
+	private final IDisposable disposable;
 	private boolean isStarted;
-	private Semaphore pause;
+	private final Semaphore pause;
 
 	/**
 	 * Create a thread associated to a BlockingQueue.
@@ -25,7 +25,7 @@ public class BlockingQueueTask<T> {
 
 		queue = new ArrayBlockingQueue<>(10000);
 
-		queueThread = new Thread(() -> internalStart(), name);
+		queueThread = new Thread(this::internalStart, name);
 		queueThread.setDaemon(true);
 
 		disposable = new Disposable();

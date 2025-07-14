@@ -3,7 +3,7 @@ package fr.pederobien.utils;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Disposable implements IDisposable {
-	private AtomicBoolean isDisposed;
+	private final AtomicBoolean isDisposed;
 
 	public Disposable() {
 		isDisposed = new AtomicBoolean(false);

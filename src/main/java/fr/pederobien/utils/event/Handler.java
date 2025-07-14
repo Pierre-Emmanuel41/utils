@@ -6,9 +6,9 @@ import java.lang.reflect.Method;
 import fr.pederobien.utils.ICancellable;
 
 public class Handler {
-	private IEventListener eventListener;
-	private EventHandler eventHandler;
-	private Method method;
+	private final IEventListener eventListener;
+	private final EventHandler eventHandler;
+	private final Method method;
 
 	public Handler(IEventListener eventListener, EventHandler eventHandler, Method method) {
 		this.eventListener = eventListener;

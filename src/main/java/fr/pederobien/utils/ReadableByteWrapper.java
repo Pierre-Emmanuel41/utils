@@ -9,11 +9,11 @@ public class ReadableByteWrapper {
 	private int position;
 
 	/**
-	 * Create a new readable wrapper based on the the given byte array. A readable
+	 * Create a new readable wrapper based on the given byte array. A readable
 	 * wrapper contains an internal cursor whose the value is updated according to
 	 * the value read.
 	 * 
-	 * @param buffer     The byte array to wrap.
+	 * @param data     The byte array to wrap.
 	 * @param endianness The byte order to use.
 	 * 
 	 * @return A byte wrapper.
@@ -24,7 +24,7 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Create a new readable wrapper based on the the given byte array. A readable
+	 * Create a new readable wrapper based on the given byte array. A readable
 	 * wrapper contains an internal cursor whose the value is updated according to
 	 * the value read.
 	 * 
@@ -37,7 +37,7 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Create a new readable wrapper based on the the given byte array. A readable
+	 * Create a new readable wrapper based on the given byte array. A readable
 	 * wrapper contains an internal cursor whose the value is updated according to
 	 * the value read.
 	 * 
@@ -88,7 +88,7 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Reads the next four bytes, composing them into a integer value according to
+	 * Reads the next four bytes, composing them into an integer value according to
 	 * the current byte order and increment the current position by four.
 	 *
 	 * @return The integer value at the current position.
@@ -193,7 +193,7 @@ public class ReadableByteWrapper {
 
 			// Iterating over the pattern
 			for (int j = 0; (j < pattern.length) && match; j++)
-				match &= buffer[i + j] == pattern[j];
+				match = buffer[i + j] == pattern[j];
 
 			if (match) {
 				position += pattern.length;

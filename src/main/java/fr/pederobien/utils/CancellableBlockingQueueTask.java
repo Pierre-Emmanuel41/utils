@@ -6,10 +6,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class CancellableBlockingQueueTask<T> {
-	private Thread queueThread;
-	private Consumer<Cancellable<T>> consumer;
-	private BlockingQueue<Cancellable<T>> queue;
-	private AtomicBoolean disposed;
+	private final Thread queueThread;
+	private final Consumer<Cancellable<T>> consumer;
+	private final BlockingQueue<Cancellable<T>> queue;
+	private final AtomicBoolean disposed;
 	private boolean isStarted;
 
 	/**
@@ -23,7 +23,7 @@ public class CancellableBlockingQueueTask<T> {
 
 		queue = new ArrayBlockingQueue<>(10000);
 
-		queueThread = new Thread(() -> internalStart(), name);
+		queueThread = new Thread(this::internalStart, name);
 		queueThread.setDaemon(true);
 
 		disposed = new AtomicBoolean(false);
@@ -82,7 +82,7 @@ public class CancellableBlockingQueueTask<T> {
 
 				consumer.accept(cancellable);
 			} catch (InterruptedException e) {
-
+				// Do nothing
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -95,7 +95,7 @@ public class CancellableBlockingQueueTask<T> {
 	}
 
 	public static class Cancellable<T> {
-		private T element;
+		private final T element;
 		private boolean isCancelled;
 
 		/**

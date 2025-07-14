@@ -3,13 +3,13 @@ package fr.pederobien.utils;
 import java.util.concurrent.Semaphore;
 
 public class HealedCounter {
-	private int max;
+	private final int max;
 	private int counter;
-	private int time;
-	private Runnable action;
-	private String name;
+	private final int time;
+	private final Runnable action;
+	private final String name;
+	private final Semaphore semaphore;
 	private Thread watcher;
-	private Semaphore semaphore;
 
 	/**
 	 * Asynchronously monitor an underlying counter which can be incremented when
@@ -28,6 +28,8 @@ public class HealedCounter {
 		this.time = time;
 		this.action = action;
 		this.name = name;
+
+		semaphore = new Semaphore(0);
 
 		initialize();
 	}
@@ -104,9 +106,9 @@ public class HealedCounter {
 	 */
 	private void initialize() {
 		counter = 0;
-		watcher = new Thread(() -> watch(), name);
-		semaphore = new Semaphore(0);
+		semaphore.drainPermits();
 
+		watcher = new Thread(this::watch, name);
 		watcher.setDaemon(true);
 		watcher.start();
 	}

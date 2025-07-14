@@ -33,12 +33,12 @@ public class Watchdog {
 	}
 
 	public static class WatchdogStakeholder {
-		private IExecutable executable;
-		private int timeout;
+		private final IExecutable executable;
+		private final int timeout;
 		private Thread worker;
-		private Thread watcher;
-		private Semaphore out, monitor;
-		private CountDownLatch countdownLatch;
+		private final Thread watcher;
+		private final Semaphore out, monitor;
+		private final CountDownLatch countdownLatch;
 		private boolean cancelled, exception, success;
 
 		/**
@@ -73,7 +73,7 @@ public class Watchdog {
 
 		/**
 		 * Start the execution the of task in a separated thread and block until the end
-		 * of it execution.
+		 * of its execution.
 		 * 
 		 * @return True if the task execution ended in time, false if a timeout occurred
 		 *         or if the task was cancelled.
@@ -114,7 +114,7 @@ public class Watchdog {
 			boolean success = false;
 			try {
 				// Watcher is ready
-				worker = new Thread(() -> work(), "Worker");
+				worker = new Thread(this::work, "Worker");
 				worker.start();
 
 				// Waiting a little bit to be sure the worker thread acquired the monitor
@@ -126,10 +126,10 @@ public class Watchdog {
 
 				// When the execution is cancelled, inTime will be true as the monitor is
 				// released
-				success = (cancelled || exception || !inTime) ? false : true;
+				success = !cancelled && !exception && inTime;
 
 			} catch (InterruptedException e) {
-				success = false;
+				// Do nothing, success already equals false
 			}
 
 			this.success = success;

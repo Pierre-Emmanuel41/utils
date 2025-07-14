@@ -8,13 +8,13 @@ public interface ICancellable {
 	 *
 	 * @return true if this event is cancelled
 	 */
-	public boolean isCancelled();
+	boolean isCancelled();
 
 	/**
 	 * Sets the cancellation state of this event. A cancelled event will not be
 	 * executed in the server, but will still pass to other plugins.
 	 *
-	 * @param cancel true if you wish to cancel this event
+	 * @param isCancelled true if you wish to cancel this event
 	 */
-	public void setCancelled(boolean isCancelled);
+	void setCancelled(boolean isCancelled);
 }

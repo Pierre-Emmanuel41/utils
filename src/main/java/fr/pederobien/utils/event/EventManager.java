@@ -43,9 +43,9 @@ public class EventManager {
 
 			// Creating a new Map if there is no event handler registered for the event.
 			if (eventHandlers == null) {
-				// Creating a map in order to associated the priority with an empty list.
-				EnumMap<EventPriority, Queue<Handler>> enumMap = new EnumMap<EventPriority, Queue<Handler>>(
-						EventPriority.class);
+				// Creating a map in order to associate the priority with an empty list.
+				EnumMap<EventPriority, Queue<Handler>> enumMap = new EnumMap<EventPriority, Queue<Handler>>(EventPriority.class);
+
 				for (EventPriority priority : EventPriority.values())
 					enumMap.put(priority, new ConcurrentLinkedQueue<Handler>());
 
@@ -86,7 +86,7 @@ public class EventManager {
 	}
 
 	/**
-	 * Fire an {@link EventCallEvent} first, then fire the given event and dispatch
+	 * Fire an {@link EventCalledEvent} first, then fire the given event and dispatch
 	 * it among the event handlers. It is recommended that each event overrides the
 	 * toString method in order to display the value of each parameter.
 	 * 
@@ -99,7 +99,7 @@ public class EventManager {
 
 	/**
 	 * Fire the event among the event handlers and run the given runnable if the
-	 * given event class does not implements {@link ICancellable} interface of if
+	 * given event class does not implement {@link ICancellable} interface of if
 	 * the event has not been cancelled.
 	 * 
 	 * @param event    The event to fire.
@@ -125,7 +125,7 @@ public class EventManager {
 
 	/**
 	 * First fire the preEvent among the event, then run the given exe if the given
-	 * event class does not implements {@link ICancellable} interface of if the
+	 * event class does not implement {@link ICancellable} interface of if the
 	 * event has not been cancelled and finally fire the postEvent.
 	 * 
 	 * @param preEvent The event to thrown first.
@@ -142,7 +142,7 @@ public class EventManager {
 
 	/**
 	 * First fire the preEvent among the event, then run the given exe if the given
-	 * event class does not implements {@link ICancellable} interface of if the
+	 * event class does not implement {@link ICancellable} interface of if the
 	 * event has not been cancelled and finally fire the postEvent.
 	 * 
 	 * @param preEvent The event to thrown first.
@@ -160,13 +160,13 @@ public class EventManager {
 
 	/**
 	 * First fire the preEvent among the event, then run the given exe if the given
-	 * event class does not implements {@link ICancellable} interface of if the
+	 * event class does not implement {@link ICancellable} interface of if the
 	 * event has not been cancelled and finally fire the postEvent.
 	 * 
 	 * @param preEvent The event to thrown first.
 	 * @param exe      The code to execute if the event has not been cancelled and
 	 *                 specify the type of the created object.
-	 * @param posEvent A function to create the postEvent depending on the created
+	 * @param postEvent A function to create the postEvent depending on the created
 	 *                 object.
 	 */
 	public static <T> T callEvent(Event preEvent, Supplier<T> exe, Function<T, Event> postEvent) {
@@ -182,9 +182,8 @@ public class EventManager {
 	private static Map<Class<? extends Event>, Queue<Handler>> createEventHandler(IEventListener eventListener) {
 		Map<Class<? extends Event>, Queue<Handler>> eventHandlersMap = new HashMap<Class<? extends Event>, Queue<Handler>>();
 
-		List<Method> methods = new ArrayList<Method>();
-		// private methods
-		methods.addAll(Arrays.asList(eventListener.getClass().getDeclaredMethods()));
+        // private methods
+        Method[] methods = eventListener.getClass().getDeclaredMethods();
 
 		// Iterating over public methods in order to extract event handlers.
 		for (Method method : methods) {
@@ -232,17 +231,15 @@ public class EventManager {
 		if (handlersMap == null)
 			return;
 
-		Iterator<Map.Entry<EventPriority, Queue<Handler>>> handlerIterator = handlersMap.entrySet().iterator();
-		while (handlerIterator.hasNext()) {
-			Map.Entry<EventPriority, Queue<Handler>> entry = handlerIterator.next();
-			for (Handler handler : entry.getValue()) {
-				try {
-					handler.handle(event);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
+        for (Map.Entry<EventPriority, Queue<Handler>> entry : handlersMap.entrySet()) {
+            for (Handler handler : entry.getValue()) {
+                try {
+                    handler.handle(event);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 	}
 
 	/**
