@@ -164,7 +164,7 @@ public class Logger implements IEventListener {
 	 * @return This logger.
 	 */
 	public Logger debug(boolean isEnabled) {
-		this.debug = debug;
+		this.debug = isEnabled;
 		return this;
 	}
 
