@@ -12,7 +12,7 @@ public class Logger implements IEventListener {
 	private final BlockingQueueTask<String> queue;
 	private final Set<Class<? extends Event>> ignored;
 	private final AtomicBoolean isRegistered;
-	private boolean newLine, timeStamp;
+	private boolean newLine, timeStamp, debug;
 
 	private Logger() {
 		ignored = new HashSet<Class<? extends Event>>();
@@ -20,6 +20,10 @@ public class Logger implements IEventListener {
 
 		queue = new BlockingQueueTask<String>("AsyncConsole", System.out::print);
 		queue.start();
+
+		newLine = true;
+		timeStamp = true;
+		debug = false;
 	}
 
 	/**
@@ -39,7 +43,8 @@ public class Logger implements IEventListener {
 	 * @param args   The arguments of the message to display.
 	 */
 	public static void debug(String format, Object... args) {
-		instance().print(new LogEvent(ELogLevel.DEBUG, format, args));
+		if (instance().debug)
+			instance().print(new LogEvent(ELogLevel.DEBUG, format, args));
 	}
 
 	/**
@@ -148,6 +153,18 @@ public class Logger implements IEventListener {
 	 */
 	public Logger timeStamp(boolean timeStamp) {
 		this.timeStamp = timeStamp;
+		return this;
+	}
+
+	/**
+	 * Set if the static debug function is enabled.
+	 *
+	 * @param isEnabled True to enable debug display, false otherwise.
+	 *
+	 * @return This logger.
+	 */
+	public Logger debug(boolean isEnabled) {
+		this.debug = debug;
 		return this;
 	}
 
