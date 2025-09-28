@@ -7,8 +7,7 @@ import java.util.concurrent.TimeUnit;
 public class Watchdog {
 
 	/**
-	 * Execute asynchronously the runnable and block until the end of the execution
-	 * or until a timeout occurs.
+	 * Execute asynchronously the runnable and block until the end of the execution or until a timeout occurs.
 	 * 
 	 * @param executable The code to execute.
 	 * @param timeout    The timeout in ms.
@@ -20,8 +19,7 @@ public class Watchdog {
 	}
 
 	/**
-	 * Create a watchdog stakeholder to execute asynchronously the runnable and
-	 * block until the end of the execution or for a timeout.
+	 * Create a watchdog stakeholder to execute asynchronously the runnable and block until the end of the execution or for a timeout.
 	 * 
 	 * @param executable The code to execute.
 	 * @param timeout    The timeout in ms.
@@ -72,11 +70,9 @@ public class Watchdog {
 		}
 
 		/**
-		 * Start the execution the of task in a separated thread and block until the end
-		 * of its execution.
+		 * Start the execution the of task in a separated thread and block until the end of its execution.
 		 * 
-		 * @return True if the task execution ended in time, false if a timeout occurred
-		 *         or if the task was cancelled.
+		 * @return True if the task execution ended in time, false if a timeout occurred or if the task was cancelled.
 		 */
 		public boolean start() throws InterruptedException {
 			cancelled = false;

@@ -12,11 +12,9 @@ public class HealedCounter {
 	private Thread watcher;
 
 	/**
-	 * Asynchronously monitor an underlying counter which can be incremented when
-	 * the function {@link #increment()} is called and is decremented automatically
-	 * after a specific period of time. A thread is looping trying to decrease the
-	 * counter. If the counter reach 0, the thread sleep until the counter is
-	 * incremented.
+	 * Asynchronously monitor an underlying counter which can be incremented when the function {@link #increment()} is called and is
+	 * decremented automatically after a specific period of time. A thread is looping trying to decrease the counter. If the counter
+	 * reach 0, the thread sleep until the counter is incremented.
 	 * 
 	 * @param max    The maximum value the counter can reach.
 	 * @param time   The time after which the counter is decremented.
@@ -35,11 +33,9 @@ public class HealedCounter {
 	}
 
 	/**
-	 * Asynchronously monitor an underlying counter which can be incremented when
-	 * the function {@link #increment()} is called and is decremented automatically
-	 * after a specific period of time. A thread is looping trying to decrease the
-	 * counter. If the counter reach 0, the thread sleep until the counter is
-	 * incremented.
+	 * Asynchronously monitor an underlying counter which can be incremented when the function {@link #increment()} is called and is
+	 * decremented automatically after a specific period of time. A thread is looping trying to decrease the counter. If the counter
+	 * reach 0, the thread sleep until the counter is incremented.
 	 * 
 	 * @param max    The maximum value the counter can reach.
 	 * @param time   The time after which the counter is decremented.
@@ -86,8 +82,8 @@ public class HealedCounter {
 	}
 
 	/**
-	 * Interrupt the thread which is trying to decrement the underlying counter, set
-	 * the value of the counter to 0 and restart the watcher thread.
+	 * Interrupt the thread which is trying to decrement the underlying counter, set the value of the counter to 0 and restart the
+	 * watcher thread.
 	 */
 	public void reset() {
 		watcher.interrupt();

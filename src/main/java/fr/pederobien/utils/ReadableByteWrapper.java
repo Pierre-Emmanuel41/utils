@@ -9,11 +9,10 @@ public class ReadableByteWrapper {
 	private int position;
 
 	/**
-	 * Create a new readable wrapper based on the given byte array. A readable
-	 * wrapper contains an internal cursor whose the value is updated according to
-	 * the value read.
+	 * Create a new readable wrapper based on the given byte array. A readable wrapper contains an internal cursor whose the value is
+	 * updated according to the value read.
 	 * 
-	 * @param data     The byte array to wrap.
+	 * @param data       The byte array to wrap.
 	 * @param endianness The byte order to use.
 	 * 
 	 * @return A byte wrapper.
@@ -24,9 +23,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Create a new readable wrapper based on the given byte array. A readable
-	 * wrapper contains an internal cursor whose the value is updated according to
-	 * the value read.
+	 * Create a new readable wrapper based on the given byte array. A readable wrapper contains an internal cursor whose the value is
+	 * updated according to the value read.
 	 * 
 	 * @param buffer The byte array to wrap.
 	 * 
@@ -37,9 +35,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Create a new readable wrapper based on the given byte array. A readable
-	 * wrapper contains an internal cursor whose the value is updated according to
-	 * the value read.
+	 * Create a new readable wrapper based on the given byte array. A readable wrapper contains an internal cursor whose the value is
+	 * updated according to the value read.
 	 * 
 	 * @param buffer     The byte array to wrap.
 	 * @param endianness The byte order to use.
@@ -60,9 +57,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Reads the next n bytes, with n equals length, and increment by n the current
-	 * position by one. If length is -1, read the until the end of the underlying
-	 * bytes array.
+	 * Reads the next n bytes, with n equals length, and increment by n the current position by one. If length is -1, read the until
+	 * the end of the underlying bytes array.
 	 *
 	 * @param length The number of bytes to read.
 	 * 
@@ -78,8 +74,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Reads the next two bytes, composing them into a short value according to the
-	 * current byte order and increment the current position by two.
+	 * Reads the next two bytes, composing them into a short value according to the current byte order and increment the current
+	 * position by two.
 	 * 
 	 * @return The short value at the current position.
 	 */
@@ -88,8 +84,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Reads the next four bytes, composing them into an integer value according to
-	 * the current byte order and increment the current position by four.
+	 * Reads the next four bytes, composing them into an integer value according to the current byte order and increment the current
+	 * position by four.
 	 *
 	 * @return The integer value at the current position.
 	 */
@@ -98,8 +94,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Reads the next height bytes, composing them into a long value according to
-	 * the current byte order and increment the current position by height.
+	 * Reads the next height bytes, composing them into a long value according to the current byte order and increment the current
+	 * position by height.
 	 *
 	 * @return The long value at the current position.
 	 */
@@ -108,8 +104,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Reads the next four bytes, composing them into a float value according to the
-	 * current byte order and increment the current position by four.
+	 * Reads the next four bytes, composing them into a float value according to the current byte order and increment the current
+	 * position by four.
 	 *
 	 * @return The float value at the current position.
 	 */
@@ -118,8 +114,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Reads the next height bytes, composing them into a double value according to
-	 * the current byte order and increment the current position by height.
+	 * Reads the next height bytes, composing them into a double value according to the current byte order and increment the current
+	 * position by height.
 	 *
 	 * @return The double value at the current position.
 	 */
@@ -128,9 +124,8 @@ public class ReadableByteWrapper {
 	}
 
 	/**
-	 * Read the next n bytes, with n equals length, at the given index and creates a
-	 * string based on the corresponding bytes array, and then increment the current
-	 * position by n.
+	 * Read the next n bytes, with n equals length, at the given index and creates a string based on the corresponding bytes array,
+	 * and then increment the current position by n.
 	 * 
 	 * @param length The number of bytes to read.
 	 * 
@@ -180,8 +175,7 @@ public class ReadableByteWrapper {
 	 * 
 	 * @param pattern The pattern to look for.
 	 * 
-	 * @return -1 if the pattern is not present, or the index of the first
-	 *         occurrence of the pattern.
+	 * @return -1 if the pattern is not present, or the index of the first occurrence of the pattern.
 	 */
 	public int nextIndexOf(byte[] pattern) {
 		int index = -1;
@@ -212,8 +206,7 @@ public class ReadableByteWrapper {
 	 * @param position The index to start from.
 	 * @param pattern  The pattern to look for.
 	 * 
-	 * @return -1 if the pattern is not present, or the index of the first
-	 *         occurrence of the pattern.
+	 * @return -1 if the pattern is not present, or the index of the first occurrence of the pattern.
 	 */
 	public int nextIndexOf(int position, byte[] pattern) {
 		setPosition(position);

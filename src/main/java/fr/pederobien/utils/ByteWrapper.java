@@ -9,8 +9,7 @@ public class ByteWrapper {
 	private ByteBuffer byteBuffer;
 
 	/**
-	 * Creates a byte wrapper in order to store byte representation of different
-	 * data.
+	 * Creates a byte wrapper in order to store byte representation of different data.
 	 * 
 	 * @param buffer     The underlying array.
 	 * @param endianness The byte order to use to store data.
@@ -21,8 +20,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Create a new wrapper based on the given byte array. The default byte
-	 * order is Big-Endian.
+	 * Create a new wrapper based on the given byte array. The default byte order is Big-Endian.
 	 * 
 	 * @param buffer The byte array to wrap.
 	 * 
@@ -45,8 +43,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Creates a new wrapper based on an empty bytes array. The default byte order
-	 * is Big-Endian.
+	 * Creates a new wrapper based on an empty bytes array. The default byte order is Big-Endian.
 	 * 
 	 * @return A byte wrapper.
 	 */
@@ -90,8 +87,7 @@ public class ByteWrapper {
 	 * Concatenates the given buffer at the end of this buffer.
 	 * 
 	 * @param buffer        The buffer to add.
-	 * @param specifyLength True if the length of the byte array should be written
-	 *                      in this buffer before writing the given buffer.
+	 * @param specifyLength True if the length of the byte array should be written in this buffer before writing the given buffer.
 	 * 
 	 * @return A byte wrapper.
 	 */
@@ -104,8 +100,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Creates the bytes array associated to the given short number and concatenates
-	 * the result to this buffer.
+	 * Creates the bytes array associated to the given short number and concatenates the result to this buffer.
 	 * 
 	 * @param value The sort value to add.
 	 * 
@@ -116,8 +111,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Creates the bytes array associated to the given int number and concatenates
-	 * the result to this buffer.
+	 * Creates the bytes array associated to the given int number and concatenates the result to this buffer.
 	 * 
 	 * @param value The int value to add.
 	 * 
@@ -128,8 +122,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Creates the bytes array associated to the given long number and concatenates
-	 * the result to this buffer.
+	 * Creates the bytes array associated to the given long number and concatenates the result to this buffer.
 	 * 
 	 * @param value The long value to add.
 	 * 
@@ -140,8 +133,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Creates the bytes array associated to the given float number and concatenates
-	 * the result to this buffer.
+	 * Creates the bytes array associated to the given float number and concatenates the result to this buffer.
 	 * 
 	 * @param value The float value to add.
 	 * 
@@ -152,8 +144,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Creates the bytes array associated to the given double number and
-	 * concatenates the result to this buffer.
+	 * Creates the bytes array associated to the given double number and concatenates the result to this buffer.
 	 * 
 	 * @param value The double value to add.
 	 * 
@@ -178,9 +169,8 @@ public class ByteWrapper {
 	 * Concatenates the bytes array associated to the given string to this buffer.
 	 * 
 	 * @param string        The string to add.
-	 * @param specifyLength True if the length of the byte array should be written
-	 *                      in this buffer before writing the byte array associated
-	 *                      to the given string.
+	 * @param specifyLength True if the length of the byte array should be written in this buffer before writing the byte array
+	 *                      associated to the given string.
 	 * 
 	 * @return A byte wrapper.
 	 */
@@ -205,8 +195,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Reads two bytes at the given index, composing them into a short value
-	 * according to the current byte order.
+	 * Reads two bytes at the given index, composing them into a short value according to the current byte order.
 	 * 
 	 * @param index The index from which the bytes will be read.
 	 *
@@ -217,8 +206,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Reads four bytes at the given index, composing them into an int value
-	 * according to the current byte order.
+	 * Reads four bytes at the given index, composing them into an int value according to the current byte order.
 	 *
 	 * @param index The index from which the bytes will be read.
 	 *
@@ -229,8 +217,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Reads height bytes at the given index, composing them into a long value
-	 * according to the current byte order.
+	 * Reads height bytes at the given index, composing them into a long value according to the current byte order.
 	 *
 	 * @param index The index from which the bytes will be read.
 	 *
@@ -241,8 +228,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Reads four bytes at the given index, composing them into a float value
-	 * according to the current byte order.
+	 * Reads four bytes at the given index, composing them into a float value according to the current byte order.
 	 *
 	 * @param index The index from which the bytes will be read.
 	 *
@@ -253,8 +239,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Reads height bytes at the given index, composing them into a double value
-	 * according to the current byte order.
+	 * Reads height bytes at the given index, composing them into a double value according to the current byte order.
 	 *
 	 * @param index The index from which the bytes will be read.
 	 *
@@ -272,8 +257,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Read n bytes, with n equals length, at the given index and creates a string
-	 * based on the corresponding bytes array.
+	 * Read n bytes, with n equals length, at the given index and creates a string based on the corresponding bytes array.
 	 * 
 	 * @param index  The index from which the bytes will be read.
 	 * @param length The number of bytes to read.
@@ -299,9 +283,8 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Takes n bytes, with n equals length, at the given index and returns the
-	 * corresponding bytes array. The source array is modified such as the returned
-	 * bytes array is no more contained in this wrapper.
+	 * Takes n bytes, with n equals length, at the given index and returns the corresponding bytes array. The source array is modified
+	 * such as the returned bytes array is no more contained in this wrapper.
 	 * 
 	 * @param index  The index from which the bytes will be taken.
 	 * @param length The number of bytes to take.
@@ -319,8 +302,7 @@ public class ByteWrapper {
 	}
 
 	/**
-	 * Read n bytes, with n equals length, at the given index and returns the
-	 * corresponding bytes array.
+	 * Read n bytes, with n equals length, at the given index and returns the corresponding bytes array.
 	 * 
 	 * @param index  The index from which the bytes will be read.
 	 * @param length The number of bytes to read.

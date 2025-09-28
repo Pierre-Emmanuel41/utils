@@ -89,8 +89,7 @@ public class Logger implements IEventListener {
 	}
 
 	/**
-	 * Specifies a class of event that when called, should not be displayed by this
-	 * logger.
+	 * Specifies a class of event that when called, should not be displayed by this logger.
 	 * 
 	 * @param clazz The class of event to not display.
 	 */
@@ -111,8 +110,7 @@ public class Logger implements IEventListener {
 	}
 
 	/**
-	 * Register this listener in the EventManager in order to display the registered
-	 * event to be called.
+	 * Register this listener in the EventManager in order to display the registered event to be called.
 	 */
 	public void register() {
 		if (!isRegistered.compareAndSet(false, true))
@@ -122,8 +120,7 @@ public class Logger implements IEventListener {
 	}
 
 	/**
-	 * Unregister this listener from the EventManager in order to not be notified
-	 * when an event is thrown.
+	 * Unregister this listener from the EventManager in order to not be notified when an event is thrown.
 	 */
 	public void unregister() {
 		if (!isRegistered.compareAndSet(true, false))
@@ -213,8 +210,7 @@ public class Logger implements IEventListener {
 	 * @return True if a super class is forbidden, false otherwise.
 	 */
 	private boolean isSuperClassIgnored(EventCalledEvent event) {
-		for (Class<?> clazz = event.getEvent().getClass(); Event.class
-				.isAssignableFrom(clazz); clazz = clazz.getSuperclass())
+		for (Class<?> clazz = event.getEvent().getClass(); Event.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass())
 			if (ignored.contains(clazz))
 				return true;
 		return false;

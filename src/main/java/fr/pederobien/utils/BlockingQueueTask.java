@@ -17,8 +17,7 @@ public class BlockingQueueTask<T> {
 	 * Create a thread associated to a BlockingQueue.
 	 * 
 	 * @param name     The thread name.
-	 * @param consumer The code to execute asynchronously when an element is added
-	 *                 to this queue.
+	 * @param consumer The code to execute asynchronously when an element is added to this queue.
 	 */
 	public BlockingQueueTask(String name, Consumer<T> consumer) {
 		this.consumer = consumer;
@@ -33,8 +32,7 @@ public class BlockingQueueTask<T> {
 	}
 
 	/**
-	 * Start the underlying thread in order to perform an action when an element is
-	 * added.
+	 * Start the underlying thread in order to perform an action when an element is added.
 	 */
 	public void start() {
 		disposable.checkDisposed();
@@ -47,8 +45,7 @@ public class BlockingQueueTask<T> {
 	}
 
 	/**
-	 * Appends the given element in the underlying blocking queue in order to
-	 * perform an action asynchronously.
+	 * Appends the given element in the underlying blocking queue in order to perform an action asynchronously.
 	 * 
 	 * @param e The element to add.
 	 */
@@ -72,8 +69,7 @@ public class BlockingQueueTask<T> {
 	}
 
 	/**
-	 * Dispose this queue. The underlying thread is interrupted, this object is no
-	 * more reusable.
+	 * Dispose this queue. The underlying thread is interrupted, this object is no more reusable.
 	 */
 	public void dispose() {
 		if (disposable.dispose())

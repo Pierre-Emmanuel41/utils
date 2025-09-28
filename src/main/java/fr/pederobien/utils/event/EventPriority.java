@@ -6,8 +6,7 @@ package fr.pederobien.utils.event;
 public enum EventPriority {
 
 	/**
-	 * Event call is of very low importance and should be ran first, to allow other
-	 * event handler to further customise the outcome
+	 * Event call is of very low importance and should be ran first, to allow other event handler to further customise the outcome
 	 */
 	LOWEST(0),
 	/**
@@ -23,8 +22,7 @@ public enum EventPriority {
 	 */
 	HIGH(3),
 	/**
-	 * Event call is critical and must have the final say in what happens to the
-	 * event
+	 * Event call is critical and must have the final say in what happens to the event
 	 */
 	HIGHEST(4),
 	/**
