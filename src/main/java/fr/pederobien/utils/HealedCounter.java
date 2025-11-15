@@ -7,7 +7,6 @@ public class HealedCounter {
 	private int counter;
 	private final int time;
 	private final Runnable action;
-	private final String name;
 	private final Semaphore semaphore;
 	private Thread watcher;
 
@@ -19,30 +18,15 @@ public class HealedCounter {
 	 * @param max    The maximum value the counter can reach.
 	 * @param time   The time after which the counter is decremented.
 	 * @param action The action to run when the counter reach the maximum value.
-	 * @param name   The name of the watcher thread.
 	 */
-	public HealedCounter(int max, int time, Runnable action, String name) {
+	public HealedCounter(int max, int time, Runnable action) {
 		this.max = max;
 		this.time = time;
 		this.action = action;
-		this.name = name;
 
 		semaphore = new Semaphore(0);
 
 		initialize();
-	}
-
-	/**
-	 * Asynchronously monitor an underlying counter which can be incremented when the function {@link #increment()} is called and is
-	 * decremented automatically after a specific period of time. A thread is looping trying to decrease the counter. If the counter
-	 * reach 0, the thread sleep until the counter is incremented.
-	 * 
-	 * @param max    The maximum value the counter can reach.
-	 * @param time   The time after which the counter is decremented.
-	 * @param action The action to run when the counter reach the maximum value.
-	 */
-	public HealedCounter(int max, int time, Runnable action) {
-		this(max, time, action, "HealedCounter");
 	}
 
 	/**
@@ -104,7 +88,7 @@ public class HealedCounter {
 		counter = 0;
 		semaphore.drainPermits();
 
-		watcher = new Thread(this::watch, name);
+		watcher = new Thread(this::watch, "HealdCounter");
 		watcher.setDaemon(true);
 		watcher.start();
 	}
