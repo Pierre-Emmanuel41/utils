@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -103,6 +104,18 @@ public class EventManager {
 		callEvent(event);
 		if (!(event instanceof ICancellable) || !((ICancellable) event).isCancelled())
 			runnable.run();
+	}
+
+	/**
+	 * Fire the event among the event handlers and execute the given action. The input parameter value of the action is true if the
+	 * event has been cancelled, ie the input event implements ICancellable and has been cancelled, is false otherwise.
+	 * 
+	 * @param event  The event to fire.
+	 * @param action The code to execute after firing the event.
+	 */
+	public static void callEvent(Event event, Consumer<Boolean> action) {
+		callEvent(event);
+		action.accept(event instanceof ICancellable ? ((ICancellable) event).isCancelled() : false);
 	}
 
 	/**
