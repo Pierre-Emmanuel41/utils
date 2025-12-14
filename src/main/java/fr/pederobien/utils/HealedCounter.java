@@ -88,7 +88,7 @@ public class HealedCounter {
 		counter = 0;
 		semaphore.drainPermits();
 
-		watcher = new Thread(this::watch, "HealdCounter");
+		watcher = new Thread(this::watch, "HealedCounter");
 		watcher.setDaemon(true);
 		watcher.start();
 	}
