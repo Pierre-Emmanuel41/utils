@@ -6,7 +6,7 @@ import java.util.StringJoiner;
 
 public class ByteWrapper {
 	private byte[] buffer;
-	private ByteBuffer byteBuffer;
+	private ByteOrder endianness;
 
 	/**
 	 * Creates a byte wrapper in order to store byte representation of different data.
@@ -16,7 +16,7 @@ public class ByteWrapper {
 	 */
 	private ByteWrapper(byte[] buffer, ByteOrder endianness) {
 		this.buffer = buffer;
-		byteBuffer = ByteBuffer.wrap(buffer).order(endianness);
+		this.endianness = endianness;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class ByteWrapper {
 	 * @param endianness The byte order to use.
 	 */
 	public static ByteWrapper create(ByteOrder endianness) {
-		return wrap(new byte[0]);
+		return wrap(new byte[0], endianness);
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class ByteWrapper {
 	 * @return A byte wrapper.
 	 */
 	public ByteWrapper putShort(short value) {
-		return internalPut(ByteBuffer.allocate(2).putShort(value).array());
+		return internalPut(allocate(2).putShort(value).array());
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class ByteWrapper {
 	 * @return A byte wrapper.
 	 */
 	public ByteWrapper putInt(int value) {
-		return internalPut(ByteBuffer.allocate(4).putInt(value).array());
+		return internalPut(allocate(4).putInt(value).array());
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class ByteWrapper {
 	 * @return A byte wrapper.
 	 */
 	public ByteWrapper putLong(long value) {
-		return internalPut(ByteBuffer.allocate(8).putLong(value).array());
+		return internalPut(allocate(8).putLong(value).array());
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class ByteWrapper {
 	 * @return A byte wrapper.
 	 */
 	public ByteWrapper putFloat(float value) {
-		return internalPut(ByteBuffer.allocate(4).putFloat(value).array());
+		return internalPut(allocate(4).putFloat(value).array());
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class ByteWrapper {
 	 * @return A byte wrapper.
 	 */
 	public ByteWrapper putDouble(double value) {
-		return internalPut(ByteBuffer.allocate(8).putDouble(value).array());
+		return internalPut(allocate(8).putDouble(value).array());
 	}
 
 	/**
@@ -175,104 +175,7 @@ public class ByteWrapper {
 	 * @return A byte wrapper.
 	 */
 	public ByteWrapper putString(String string, boolean specifyLength) {
-		if (!specifyLength)
-			return internalPut(string.getBytes());
-
-		byte[] buffer = string.getBytes();
-		putInt(buffer.length);
-		return internalPut(buffer);
-	}
-
-	/**
-	 * Reads the byte at the given index.
-	 *
-	 * @param index The index from which the byte will be read
-	 *
-	 * @return The byte at the given index
-	 */
-	public byte get(int index) {
-		return byteBuffer.get(index);
-	}
-
-	/**
-	 * Reads two bytes at the given index, composing them into a short value according to the current byte order.
-	 * 
-	 * @param index The index from which the bytes will be read.
-	 *
-	 * @return The short value at the given index.
-	 */
-	public short getShort(int index) {
-		return byteBuffer.getShort(index);
-	}
-
-	/**
-	 * Reads four bytes at the given index, composing them into an int value according to the current byte order.
-	 *
-	 * @param index The index from which the bytes will be read.
-	 *
-	 * @return The int value at the given index.
-	 */
-	public int getInt(int index) {
-		return byteBuffer.getInt(index);
-	}
-
-	/**
-	 * Reads height bytes at the given index, composing them into a long value according to the current byte order.
-	 *
-	 * @param index The index from which the bytes will be read.
-	 *
-	 * @return The long value at the given index.
-	 */
-	public long getLong(int index) {
-		return byteBuffer.getLong(index);
-	}
-
-	/**
-	 * Reads four bytes at the given index, composing them into a float value according to the current byte order.
-	 *
-	 * @param index The index from which the bytes will be read.
-	 *
-	 * @return The float value at the given index.
-	 */
-	public float getFloat(int index) {
-		return byteBuffer.getFloat(index);
-	}
-
-	/**
-	 * Reads height bytes at the given index, composing them into a double value according to the current byte order.
-	 *
-	 * @param index The index from which the bytes will be read.
-	 *
-	 * @return The double value at the given index.
-	 */
-	public double getDouble(int index) {
-		return byteBuffer.getDouble(index);
-	}
-
-	/**
-	 * @return Creates a String based on this buffer.
-	 */
-	public String getString() {
-		return new String(buffer);
-	}
-
-	/**
-	 * Read n bytes, with n equals length, at the given index and creates a string based on the corresponding bytes array.
-	 * 
-	 * @param index  The index from which the bytes will be read.
-	 * @param length The number of bytes to read.
-	 * 
-	 * @return A string.
-	 */
-	public String getString(int index, int length) {
-		return new String(extract(index, length));
-	}
-
-	/**
-	 * @return A readable wrapper that wrap the underlying bytes array.
-	 */
-	public ReadableByteWrapper getAsReadableWrapper() {
-		return ReadableByteWrapper.wrap(get());
+		return put(string.getBytes(), specifyLength);
 	}
 
 	/**
@@ -340,8 +243,17 @@ public class ByteWrapper {
 		System.arraycopy(get(), 0, intermediate, 0, get().length);
 		System.arraycopy(buffer, 0, intermediate, get().length, buffer.length);
 		this.buffer = intermediate;
-		byteBuffer = ByteBuffer.wrap(this.buffer);
 		return this;
+	}
+
+	/**
+	 * Allocate n bytes in a new ByteBuffer, with endianness specified at instantiation.
+	 * 
+	 * @param capacity The number of byte to allocate.
+	 * @return A byteBuffer with n byte allocated and same endianness as the main byte buffer.
+	 */
+	private ByteBuffer allocate(int capacity) {
+		return ByteBuffer.allocate(capacity).order(endianness);
 	}
 
 }

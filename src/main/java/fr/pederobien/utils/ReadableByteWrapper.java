@@ -1,11 +1,11 @@
 package fr.pederobien.utils;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.StringJoiner;
-import java.util.function.Function;
 
 public class ReadableByteWrapper {
-	private ByteWrapper wrapper;
+	private ByteBuffer buffer;
 	private int position;
 
 	/**
@@ -18,7 +18,7 @@ public class ReadableByteWrapper {
 	 * @return A byte wrapper.
 	 */
 	private ReadableByteWrapper(byte[] data, ByteOrder endianness) {
-		wrapper = ByteWrapper.wrap(data, endianness);
+		buffer = ByteBuffer.wrap(data).order(endianness);
 		position = 0;
 	}
 
@@ -53,24 +53,32 @@ public class ReadableByteWrapper {
 	 * @return The byte at the current position.
 	 */
 	public byte next() {
-		return next(wrapper -> wrapper.get(position), 1);
+		byte value = buffer.get(position);
+		position += 1;
+		return value;
 	}
 
 	/**
-	 * Reads the next n bytes, with n equals length, and increment by n the current position by one. If length is -1, read the until
+	 * Reads the next n bytes, with n equals length, and increment by n the current position by length. If length is -1, read until
 	 * the end of the underlying bytes array.
 	 *
 	 * @param length The number of bytes to read.
 	 * 
-	 * @return The byte at the current position.
+	 * @return The extracted bytes array from the current position.
 	 */
 	public byte[] next(int length) {
-		if (length > 0)
-			return next(wrapper -> wrapper.extract(position, length), length);
+		if (length < 0)
+			length = get().length - position;
 		else {
-			int lengthToEnd = wrapper.get().length - position;
-			return next(wrapper -> wrapper.extract(position, lengthToEnd), lengthToEnd);
+			int end = position + length;
+			if (end > get().length)
+				throw new IndexOutOfBoundsException(end);
 		}
+
+		byte[] data = new byte[length];
+		System.arraycopy(get(), position, data, 0, length);
+		position += length;
+		return data;
 	}
 
 	/**
@@ -80,7 +88,9 @@ public class ReadableByteWrapper {
 	 * @return The short value at the current position.
 	 */
 	public short nextShort() {
-		return next(wrapper -> wrapper.getShort(position), 2);
+		short value = buffer.getShort(position);
+		position += 2;
+		return value;
 	}
 
 	/**
@@ -90,7 +100,9 @@ public class ReadableByteWrapper {
 	 * @return The integer value at the current position.
 	 */
 	public int nextInt() {
-		return next(wrapper -> wrapper.getInt(position), 4);
+		int value = buffer.getInt(position);
+		position += 4;
+		return value;
 	}
 
 	/**
@@ -100,7 +112,9 @@ public class ReadableByteWrapper {
 	 * @return The long value at the current position.
 	 */
 	public long nextLong() {
-		return next(wrapper -> wrapper.getLong(position), 8);
+		long value = buffer.getLong(position);
+		position += 8;
+		return value;
 	}
 
 	/**
@@ -110,7 +124,9 @@ public class ReadableByteWrapper {
 	 * @return The float value at the current position.
 	 */
 	public float nextFloat() {
-		return next(wrapper -> wrapper.getFloat(position), 4);
+		float value = buffer.getFloat(position);
+		position += 4;
+		return value;
 	}
 
 	/**
@@ -120,7 +136,9 @@ public class ReadableByteWrapper {
 	 * @return The double value at the current position.
 	 */
 	public double nextDouble() {
-		return next(wrapper -> wrapper.getDouble(position), 8);
+		double value = buffer.getDouble(position);
+		position += 8;
+		return value;
 	}
 
 	/**
@@ -132,21 +150,14 @@ public class ReadableByteWrapper {
 	 * @return A string.
 	 */
 	public String nextString(int length) {
-		return next(wrapper -> wrapper.getString(position, length), length);
-	}
-
-	/**
-	 * @return The underlying wrapper that wraps the byte array.
-	 */
-	public ByteWrapper getAsWrapper() {
-		return wrapper;
+		return new String(next(length));
 	}
 
 	/**
 	 * @return The buffer associated to this wrapper.
 	 */
 	public byte[] get() {
-		return wrapper.get();
+		return buffer.array();
 	}
 
 	/**
@@ -157,7 +168,7 @@ public class ReadableByteWrapper {
 	 * @throws IndexOutOfBoundsException If position is out of range [0, length]
 	 */
 	public void setPosition(int position) {
-		if (position < 0 || position > wrapper.get().length)
+		if (position < 0 || position > get().length)
 			throw new IndexOutOfBoundsException(position);
 
 		this.position = position;
@@ -179,7 +190,7 @@ public class ReadableByteWrapper {
 	 */
 	public int nextIndexOf(byte[] pattern) {
 		int index = -1;
-		byte[] buffer = wrapper.get();
+		byte[] buffer = get();
 
 		// Iterating over the buffer
 		for (int i = position; i <= buffer.length - pattern.length; i++) {
@@ -222,20 +233,5 @@ public class ReadableByteWrapper {
 		for (byte b : get())
 			joiner.add("" + b);
 		return joiner.toString();
-	}
-
-	/**
-	 * Read n byte in the wrapper and then increment by n the current position.
-	 * 
-	 * @param <T>       The type of object to read.
-	 * @param function  The function that read bytes in the internal wrapper.
-	 * @param increment The number of bytes to read.
-	 * 
-	 * @return The object associated to the read bytes.
-	 */
-	private <T> T next(Function<ByteWrapper, T> function, int increment) {
-		T value = function.apply(wrapper);
-		position += increment;
-		return value;
 	}
 }
