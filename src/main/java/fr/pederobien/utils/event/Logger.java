@@ -2,28 +2,25 @@ package fr.pederobien.utils.event;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.pederobien.utils.BlockingQueueTask;
 
-public class Logger implements IEventListener {
-	private final BlockingQueueTask<String> queue;
-	private final Set<Class<? extends Event>> ignored;
-	private final AtomicBoolean isRegistered;
-	private boolean newLine, timeStamp, debug;
+public final class Logger implements IEventListener {
+	private static final BlockingQueueTask<String> CONSOLE;
+	private static final EventCalledListener EVENT_LISTENER;
+	private static boolean newLine, timeStamp, colorized;
+	private static int debugLevel;
 
-	private Logger() {
-		ignored = new HashSet<Class<? extends Event>>();
-		isRegistered = new AtomicBoolean(false);
+	static {
+		CONSOLE = new BlockingQueueTask<String>("AsyncConsole", System.out::print);
+		CONSOLE.start();
 
-		queue = new BlockingQueueTask<String>("AsyncConsole", System.out::print);
-		queue.start();
+		EVENT_LISTENER = new EventCalledListener();
 
 		newLine = true;
 		timeStamp = true;
-		debug = false;
+		colorized = false;
+		debugLevel = -1;
 	}
 
 	/**
@@ -33,7 +30,18 @@ public class Logger implements IEventListener {
 	 * @param args   The arguments of the message to display.
 	 */
 	public static void info(String format, Object... args) {
-		instance().print(new LogEvent(ELogLevel.INFO, format, args));
+		print(ELogType.INFO, format, args);
+	}
+
+	/**
+	 * Creates a LogEvent with log level DEBUG and the given formatted text.
+	 * 
+	 * @param format The formatter if the message to display has arguments.
+	 * @param args   The arguments of the message to display.
+	 */
+	public static void debug(int level, String format, Object... args) {
+		if (debugLevel <= level)
+			print(ELogType.DEBUG, format, args);
 	}
 
 	/**
@@ -43,8 +51,7 @@ public class Logger implements IEventListener {
 	 * @param args   The arguments of the message to display.
 	 */
 	public static void debug(String format, Object... args) {
-		if (instance().debug)
-			instance().print(new LogEvent(ELogLevel.DEBUG, format, args));
+		debug(0, format, args);
 	}
 
 	/**
@@ -54,7 +61,7 @@ public class Logger implements IEventListener {
 	 * @param args   The arguments of the message to display.
 	 */
 	public static void warning(String format, Object... args) {
-		instance().print(new LogEvent(ELogLevel.WARNING, format, args));
+		print(ELogType.WARNING, format, args);
 	}
 
 	/**
@@ -64,7 +71,7 @@ public class Logger implements IEventListener {
 	 * @param args   The arguments of the message to display.
 	 */
 	public static void error(String format, Object... args) {
-		instance().print(new LogEvent(ELogLevel.ERROR, format, args));
+		print(ELogType.ERROR, format, args);
 	}
 
 	/**
@@ -74,124 +81,24 @@ public class Logger implements IEventListener {
 	 * @param args   The arguments of the message to display.
 	 */
 	public static void print(String format, Object... args) {
-		instance().print(new LogEvent(ELogLevel.NONE, format, args));
+		print(ELogType.NONE, format, args);
 	}
 
 	/**
-	 * @return The singleton instance of this logger.
-	 */
-	public static Logger instance() {
-		return SingletonHolder.LOGGER;
-	}
-
-	private static class SingletonHolder {
-		private static final Logger LOGGER = new Logger();
-	}
-
-	/**
-	 * Specifies a class of event that when called, should not be displayed by this logger.
+	 * Encapsulate the given text with a timestamp and a new line depending on the timestamp and newline flag values.
 	 * 
-	 * @param clazz The class of event to not display.
+	 * @param format The formatter if the message to display has arguments.
+	 * @param args   The arguments of the message to display.
 	 */
-	public <T extends Event> Logger ignore(Class<T> clazz) {
-		if (ignored.contains(clazz))
-			return this;
-		ignored.add(clazz);
-		return this;
-	}
+	private static void print(ELogType logType, String format, Object... args) {
+		String text = String.format(format, args);
 
-	/**
-	 * Specifies a class of event that when called are not ignored anymore.
-	 * 
-	 * @param clazz The class to not ignore.
-	 */
-	public <T extends Event> void accept(Class<T> clazz) {
-		ignored.remove(clazz);
-	}
+		if (logType != ELogType.NONE) {
+			text = String.format("[%s] %s", logType.name(), text);
+			if (colorized)
+				text = logType.getInColor(text);
+		}
 
-	/**
-	 * Register this listener in the EventManager in order to display the registered event to be called.
-	 */
-	public void register() {
-		if (!isRegistered.compareAndSet(false, true))
-			return;
-
-		EventManager.registerListener(this);
-	}
-
-	/**
-	 * Unregister this listener from the EventManager in order to not be notified when an event is thrown.
-	 */
-	public void unregister() {
-		if (!isRegistered.compareAndSet(true, false))
-			return;
-
-		EventManager.unregisterListener(this);
-	}
-
-	/**
-	 * Set if a new line should be displayed after displaying a thrown event.
-	 * 
-	 * @param newLine True in order to display a new line after, false otherwise.
-	 * 
-	 * @return This logger.
-	 */
-	public Logger newLine(boolean newLine) {
-		this.newLine = newLine;
-		return this;
-	}
-
-	/**
-	 * Set if the time stamp should be displayed before a thrown event.
-	 * 
-	 * @param timeStamp True in order to display the time stamp, false otherwise.
-	 * 
-	 * @return This logger.
-	 */
-	public Logger timeStamp(boolean timeStamp) {
-		this.timeStamp = timeStamp;
-		return this;
-	}
-
-	/**
-	 * Set if the static debug function is enabled.
-	 *
-	 * @param isEnabled True to enable debug display, false otherwise.
-	 *
-	 * @return This logger.
-	 */
-	public Logger debug(boolean isEnabled) {
-		this.debug = isEnabled;
-		return this;
-	}
-
-	/**
-	 * Set if the logs shall be displayed in color depending on their level.
-	 * 
-	 * @param colorized True to display with color, false otherwise.
-	 * 
-	 * @return This logger.
-	 */
-	public Logger colorized(boolean colorized) {
-		LogEvent.colorized = colorized;
-		return this;
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	private void onLog(EventCalledEvent event) {
-		if (ignored.contains(event.getClass()) || isSuperClassIgnored(event))
-			return;
-
-		print(event.getEvent());
-	}
-
-	/**
-	 * Print the event in the console.
-	 * 
-	 * @param event The event to print.
-	 */
-	private void print(Event event) {
-		String text = event.toString();
 		if (timeStamp) {
 			String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss:SSSS"));
 			text = String.format("[%s] %s", time, text);
@@ -200,52 +107,103 @@ public class Logger implements IEventListener {
 		if (newLine)
 			text = String.format("%s\n", text);
 
-		queue.add(text);
+		CONSOLE.add(text);
 	}
 
 	/**
-	 * Check if a super class of the called event is forbidden.
+	 * Set if the logger shall print the event thrown by the event manager.
 	 * 
-	 * @param event The event that contains the called event.
-	 * @return True if a super class is forbidden, false otherwise.
+	 * @param logEvent True to log events raised by the event manager, false otherwise.
 	 */
-	private boolean isSuperClassIgnored(EventCalledEvent event) {
-		for (Class<?> clazz = event.getEvent().getClass(); Event.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass())
-			if (ignored.contains(clazz))
-				return true;
-		return false;
+	public static void setPrintEvent(boolean logEvent) {
+		if (logEvent)
+			EventManager.registerListener(EVENT_LISTENER);
+		else
+			EventManager.unregisterListener(EVENT_LISTENER);
 	}
 
-	public enum ELogLevel {
+	/**
+	 * Set if a new line should be displayed after displaying a thrown event.
+	 * 
+	 * @param newLine True in order to display a new line after, false otherwise.
+	 */
+	public static void setPrintNewLine(boolean newLine) {
+		Logger.newLine = newLine;
+	}
 
+	/**
+	 * Set if the time stamp should be displayed before a thrown event.
+	 * 
+	 * @param timeStamp True in order to display the time stamp, false otherwise.
+	 */
+	public static void setPrintTimeStamp(boolean timeStamp) {
+		Logger.timeStamp = timeStamp;
+	}
+
+	/**
+	 * Set the minimum level a debug log shall have to be print. The lower the value is, the lower in the application layers it is.
+	 *
+	 * @param debugLevel The minimum level.
+	 */
+	public static void setPrintDebugLevel(int debugLevel) {
+		Logger.debugLevel = debugLevel;
+	}
+
+	/**
+	 * Set if the logs shall be displayed in color depending on their type.
+	 * 
+	 * @param colorized True to display with color, false otherwise.
+	 */
+	public static void setPrintInColor(boolean colorized) {
+		Logger.colorized = colorized;
+	}
+
+	/**
+	 * Print the event in the console.
+	 * 
+	 * @param event The event to print.
+	 */
+	/*
+	 * private void print(Event event) { String text = event.toString(); if (timeStamp) { String time =
+	 * LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss:SSSS")); text = String.format("[%s] %s", time, text); }
+	 * 
+	 * if (newLine) text = String.format("%s\n", text);
+	 * 
+	 * queue.add(text); }
+	 */
+
+	public enum ELogType {
 		// No color
 		NONE("\u001B[0m"),
+
+		// Red
+		ERROR("\u001B[31m"),
+
+		// Green
+		EVENT("\u001B[32m"),
+
+		// Yellow
+		WARNING("\u001B[33m"),
 
 		// Magenta
 		INFO("\u001B[95m"),
 
 		// Cyan
-		DEBUG("\u001B[96m"),
-
-		// Yellow
-		WARNING("\u001B[33m"),
-
-		// Red
-		ERROR("\u001B[31m");
+		DEBUG("\u001B[96m");
 
 		private final String color;
 
 		/**
-		 * Creates a log level associated to a color.
+		 * Creates a log type associated to a color.
 		 * 
 		 * @param color The color used to display the log message.
 		 */
-		ELogLevel(String color) {
+		ELogType(String color) {
 			this.color = color;
 		}
 
 		/**
-		 * Get a colored message base on the log level.
+		 * Get a colored message base on the log type.
 		 * 
 		 * @param message The message to encapsulate in color.
 		 * 
@@ -256,31 +214,11 @@ public class Logger implements IEventListener {
 		}
 	}
 
-	private static class LogEvent extends Event {
-		private static boolean colorized;
-		private String message;
+	private static class EventCalledListener implements IEventListener {
 
-		/**
-		 * Creates a log event.
-		 * 
-		 * @param level  The level of the log.
-		 * @param format The formatter if the message to display has arguments.
-		 * @param args   The arguments of the message to display.
-		 */
-		private LogEvent(ELogLevel level, String format, Object... args) {
-			String raw = String.format(format, args);
-			if (level == ELogLevel.NONE) {
-				message = raw;
-			} else {
-				message = String.format("[%s] %s", level.name(), raw);
-				if (colorized)
-					message = level.getInColor(message);
-			}
-		}
-
-		@Override
-		public String toString() {
-			return message;
+		@EventHandler(priority = EventPriority.LOWEST)
+		private void onLog(EventCalledEvent event) {
+			print(ELogType.EVENT, event.getEvent().toString());
 		}
 	}
 }
